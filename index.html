@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tapsag — Send a Verse, Send Grace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap');
+  :root{
+    --ink:#1C1A24;
+    --ink-deep:#121017;
+    --gold:#C9A24B;
+    --gold-soft:#E8D5A8;
+    --cream:#F7F2E9;
+    --sage:#7C8B6F;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--cream); color:var(--ink);
+    font-family:'Source Sans 3',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    max-width:430px; margin:0 auto; min-height:100vh; padding-bottom:100px;
+  }
+  header{ background:var(--ink); color:var(--cream); padding:36px 24px 40px; position:relative; overflow:hidden; text-align:center; }
+  .glow{ position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:260px; height:260px; border-radius:50%; background:radial-gradient(circle, var(--gold) 0%, transparent 70%); opacity:0.25; }
+  .wordmark{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:15px; letter-spacing:6px; text-transform:uppercase; color:var(--gold-soft); position:relative; z-index:1; }
+  h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:34px; line-height:1.2; margin-top:18px; position:relative; z-index:1; }
+  h1 em{ font-style:italic; color:var(--gold); }
+  .sub{ margin-top:14px; font-size:14.5px; color:#C9C4D1; line-height:1.6; position:relative; z-index:1; }
+
+  section{ padding:30px 24px; }
+  .eyebrow{ font-size:11.5px; letter-spacing:2px; text-transform:uppercase; color:var(--sage); font-weight:600; margin-bottom:12px; }
+  h2{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:24px; margin-bottom:6px; }
+  p.desc{ font-size:14px; color:#5A5568; line-height:1.6; margin-bottom:20px; }
+
+  .card{ background:#fff; border:1px solid #E6DCC4; border-radius:14px; padding:22px; margin-bottom:16px; }
+  label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#8A8496; margin-bottom:6px; margin-top:16px; }
+  label:first-child{ margin-top:0; }
+  input, select, textarea{
+    width:100%; padding:12px 14px; border:1px solid #DDD4BE; border-radius:8px;
+    font-family:'Source Sans 3',sans-serif; font-size:15px; background:var(--cream); color:var(--ink);
+  }
+  textarea{ resize:vertical; min-height:80px; }
+  .verse-preview{ background:var(--ink); color:var(--gold-soft); border-radius:10px; padding:20px; margin-top:16px; text-align:center; }
+  .verse-preview .verse-text{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:19px; line-height:1.5; }
+  .verse-preview .verse-ref{ margin-top:10px; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); }
+
+  .btn{ display:block; width:100%; text-align:center; padding:15px; border-radius:9px; font-family:'Manrope',sans-serif; font-weight:700; font-size:15px; text-decoration:none; border:none; cursor:pointer; margin-top:18px; }
+  .btn-primary{ background:var(--gold); color:var(--ink); }
+  .btn-secondary{ background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
+
+  .share-row{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+  .share-chip{ flex:1; min-width:80px; text-align:center; padding:10px 8px; background:var(--cream); border:1px solid #DDD4BE; border-radius:8px; font-size:12px; font-weight:600; color:var(--ink); text-decoration:none; }
+
+  .link-box{ display:flex; gap:8px; margin-top:14px; }
+  .link-box input{ flex:1; font-size:12px; color:#8A8496; }
+  .copy-btn{ padding:12px 16px; background:var(--ink); color:var(--gold-soft); border:none; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer; }
+
+  .status{ margin-top:14px; font-size:13px; text-align:center; color:var(--sage); min-height:18px; }
+
+  footer{ position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:var(--ink); padding:14px 24px; text-align:center; font-size:11px; color:#9891A3; }
+  footer strong{ color:var(--gold-soft); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="glow"></div>
+  <div class="wordmark">Tapsag</div>
+  <h1>Send someone <em>grace</em>, not just a message.</h1>
+  <p class="sub">Pick a verse. Add your words. It arrives like a gift — because it is one.</p>
+</header>
+
+<section>
+  <div class="eyebrow">Step 1 — Choose the verse</div>
+  <h2>Pick what fits their moment</h2>
+  <div class="card">
+    <label for="verseSelect">Verse</label>
+    <select id="verseSelect" onchange="updatePreview()">
+      <option value="Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.|Joshua 1:9">Joshua 1:9 — Strength & Courage</option>
+      <option value="The Lord is close to the brokenhearted and saves those who are crushed in spirit.|Psalm 34:18">Psalm 34:18 — Comfort</option>
+      <option value="For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.|Jeremiah 29:11">Jeremiah 29:11 — Hope</option>
+      <option value="Cast all your anxiety on him because he cares for you.|1 Peter 5:7">1 Peter 5:7 — Anxiety & Peace</option>
+      <option value="And we know that in all things God works for the good of those who love him.|Romans 8:28">Romans 8:28 — Trust</option>
+    </select>
+
+    <div class="verse-preview" id="versePreview">
+      <div class="verse-text">"Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go."</div>
+      <div class="verse-ref">Joshua 1:9</div>
+    </div>
+  </div>
+
+  <div class="eyebrow">Step 2 — Add your words</div>
+  <h2>Make it personal</h2>
+  <div class="card">
+    <label for="senderName">Your name</label>
+    <input type="text" id="senderName" placeholder="e.g. Elijah">
+
+    <label for="recipientName">Their name</label>
+    <input type="text" id="recipientName" placeholder="e.g. Sharif">
+
+    <label for="personalNote">A note from you (optional)</label>
+    <textarea id="personalNote" placeholder="Thinking of you today..."></textarea>
+
+    <label for="recipientContact">Send to (email or phone)</label>
+    <input type="text" id="recipientContact" placeholder="name@email.com or (720) 555-0100">
+
+    <button class="btn btn-primary" onclick="sendGift()">Send This Gift — $2</button>
+    <div class="status" id="sendStatus"></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Step 3 — Spread it further</div>
+  <h2>Share your own link</h2>
+  <p class="desc">Every gift you send generates a link you can post anywhere — Instagram, Facebook, group texts. Anyone who taps it can send their own verse gift too.</p>
+  <div class="card">
+    <div class="link-box">
+      <input type="text" id="shareLink" value="https://tapsag.shop/g/preview" readonly>
+      <button class="copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+    <div class="share-row">
+      <a class="share-chip" href="#" onclick="shareTo('sms')">Text</a>
+      <a class="share-chip" href="#" onclick="shareTo('instagram')">Instagram</a>
+      <a class="share-chip" href="#" onclick="shareTo('facebook')">Facebook</a>
+      <a class="share-chip" href="#" onclick="shareTo('whatsapp')">WhatsApp</a>
+    </div>
+    <button class="btn btn-secondary" onclick="downloadCard()">Download Shareable Image</button>
+  </div>
+</section>
+
+<footer>
+  Powered by <strong>Tapsag</strong> — every verse sent plants a seed.
+</footer>
+
+<script>
+function updatePreview(){
+  const sel = document.getElementById('verseSelect');
+  const [text, ref] = sel.value.split('|');
+  document.querySelector('.verse-text').textContent = '"' + text + '"';
+  document.querySelector('.verse-ref').textContent = ref;
+}
+
+async function sendGift(){
+  const statusEl = document.getElementById('sendStatus');
+  const sender = document.getElementById('senderName').value.trim();
+  const recipient = document.getElementById('recipientName').value.trim();
+  const contact = document.getElementById('recipientContact').value.trim();
+  const note = document.getElementById('personalNote').value.trim();
+  const [verseText, verseRef] = document.getElementById('verseSelect').value.split('|');
+
+  if(!sender || !recipient || !contact){
+    statusEl.textContent = 'Please fill in your name, their name, and how to reach them.';
+    statusEl.style.color = '#B23A3A';
+    return;
+  }
+
+  statusEl.textContent = 'Sending your gift...';
+  statusEl.style.color = '#7C8B6F';
+
+  try{
+    const res = await fetch('/.netlify/functions/send-gift', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        sender_name: sender,
+        recipient_name: recipient,
+        recipient_contact: contact,
+        personal_note: note,
+        verse_text: verseText,
+        verse_ref: verseRef
+      })
+    });
+    const data = await res.json();
+    if(res.ok){
+      statusEl.textContent = 'Gift sent! Check your link below to share it further.';
+      statusEl.style.color = '#7C8B6F';
+      if(data.shareLink){
+        document.getElementById('shareLink').value = data.shareLink;
+      }
+    } else {
+      statusEl.textContent = 'Something went wrong — try again in a moment.';
+      statusEl.style.color = '#B23A3A';
+    }
+  } catch(e){
+    statusEl.textContent = 'Network error — check your connection and try again.';
+    statusEl.style.color = '#B23A3A';
+  }
+}
+
+function copyLink(){
+  const input = document.getElementById('shareLink');
+  input.select();
+  document.execCommand('copy');
+  const btn = document.querySelector('.copy-btn');
+  const original = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = original, 1500);
+}
+
+function shareTo(platform){
+  const link = document.getElementById('shareLink').value;
+  const text = encodeURIComponent('I sent you something meaningful — check it out: ' + link);
+  const urls = {
+    sms: 'sms:?body=' + text,
+    whatsapp: 'https://wa.me/?text=' + text,
+    facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link),
+    instagram: null
+  };
+  if(platform === 'instagram'){
+    alert('Instagram doesn\'t support direct share links — copy your link above and paste it into your bio or a story.');
+    return;
+  }
+  window.open(urls[platform], '_blank');
+}
+
+function downloadCard(){
+  alert('Shareable image download coming in the next build pass — for now, copy your link above to share.');
+}
+</script>
+
+</body>
+</html>
