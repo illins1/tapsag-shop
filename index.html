@@ -148,10 +148,7 @@
   .capture-box.has-video video{ display:block; }
   .capture-placeholder{ text-align:center; color: #4a536a; padding: 20px; position:relative; z-index:1; pointer-events:none; }
   .capture-placeholder svg{ opacity:.4; margin-bottom:8px; }
-  .capture-box.has-media .capture-placeholder svg,
-  .capture-box.has-video .capture-placeholder svg,
-  .capture-box.has-media .capture-placeholder div,
-  .capture-box.has-video .capture-placeholder div{ display:none; }
+.capture-box.has-media #defaultBg, .capture-box.has-video #defaultBg{ display:none; }
 
   /* Buttons float ON TOP of the preview, like the original */
   .capture-actions{
@@ -273,9 +270,8 @@
     <div class="step-sub">A photo becomes a keepsake card. A video keeps its own caption.</div>
 
     <div class="capture-box" id="captureBox">
-      <div class="capture-placeholder">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="13" r="3.4" stroke="currentColor" stroke-width="1.4"/></svg>
-        <div style="font-size:12px;">Nothing captured yet</div>
+      <img src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=900&q=70" alt="" style="display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" id="defaultBg" />
+      <div class="capture-placeholder" style="position:relative; z-index:1;">
       </div>
       <canvas id="canvas"></canvas>
       <video id="videoPreview" muted playsinline controls></video>
@@ -310,20 +306,9 @@
     <textarea id="message" placeholder="Add a personal message to your gift…"></textarea>
   </div>
 
-  <!-- STEP 3.5: RECIPIENT (only needed for real Email/Text delivery) -->
-  <div class="step">
-    <div class="step-head"><span class="step-num">Four</span><span class="step-title">Who's it for?</span></div>
-    <div class="step-sub">Needed only if you send by Email or Text — Post/More don't need this.</div>
-    <div style="display:flex; flex-direction:column; gap:9px;">
-      <input class="search" id="senderName" placeholder="Your name" />
-      <input class="search" id="recipientName" placeholder="Their name" />
-      <input class="search" id="recipientContact" placeholder="Their email or phone number" />
-    </div>
-  </div>
-
   <!-- STEP 4: SHARE -->
   <div class="step">
-    <div class="step-head"><span class="step-num">Five</span><span class="step-title">Send the gift</span></div>
+    <div class="step-head"><span class="step-num">Four</span><span class="step-title">Send the gift</span></div>
 
     <button class="primary-btn" id="buildBtn" disabled>Choose a verse + photo to build your gift</button>
 
@@ -637,27 +622,30 @@ function shareText(){
 
 function giftFields(){
   return {
-    sender_name: document.getElementById('senderName').value.trim(),
-    recipient_name: document.getElementById('recipientName').value.trim(),
-    recipient_contact: document.getElementById('recipientContact').value.trim(),
+    sender_name: window.__giftSender || '',
+    recipient_name: window.__giftRecipient || '',
+    recipient_contact: window.__giftContact || '',
     personal_note: document.getElementById('message').value.trim(),
     verse_text: selected ? selected.text : '',
     verse_ref: selected ? selected.ref : ''
   };
 }
 
-function validateGiftFields(f){
-  if(!selected) return 'Choose a verse first.';
-  if(!f.sender_name || !f.recipient_name || !f.recipient_contact) return 'Fill in your name, their name, and their email or phone in Step 4.';
-  return null;
+function collectRecipientInfo(kind){
+  // kind = 'email' or 'text' — asks inline, only once per session, only when needed
+  if(!window.__giftSender) window.__giftSender = prompt('Your name?') || '';
+  if(!window.__giftRecipient) window.__giftRecipient = prompt("Their name?") || '';
+  const label = kind === 'email' ? 'Their email address?' : 'Their phone number?';
+  window.__giftContact = prompt(label) || '';
+  return !!(window.__giftSender && window.__giftRecipient && window.__giftContact);
 }
 
 document.getElementById('shareEmail').addEventListener('click', async e=>{
   e.preventDefault();
+  if(!selected){ alert('Choose a verse first.'); return; }
+  if(!collectRecipientInfo('email')) return;
   const f = giftFields();
-  const err = validateGiftFields(f);
-  if(err){ alert(err); return; }
-  if(!f.recipient_contact.includes('@')){ alert('Email delivery needs an email address in Step 4.'); return; }
+  if(!f.recipient_contact.includes('@')){ alert('That doesn\\'t look like an email address.'); return; }
   const btn = e.currentTarget;
   btn.style.opacity = '.5';
   try{
@@ -675,10 +663,10 @@ document.getElementById('shareEmail').addEventListener('click', async e=>{
 });
 document.getElementById('shareText').addEventListener('click', async e=>{
   e.preventDefault();
+  if(!selected){ alert('Choose a verse first.'); return; }
+  if(!collectRecipientInfo('text')) return;
   const f = giftFields();
-  const err = validateGiftFields(f);
-  if(err){ alert(err); return; }
-  if(f.recipient_contact.includes('@')){ alert('Text delivery needs a phone number in Step 4.'); return; }
+  if(f.recipient_contact.includes('@')){ alert('That looks like an email — text delivery needs a phone number.'); return; }
   const btn = e.currentTarget;
   btn.style.opacity = '.5';
   try{
