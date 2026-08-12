@@ -186,7 +186,7 @@
   textarea:focus{ border-color: var(--gold-soft); }
 
   /* Share */
-  .share-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:9px; margin-top:16px; }
+  .share-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap:7px; margin-top:16px; }
   .share-btn{
     display:flex; flex-direction:column; align-items:center; gap:7px; padding: 12px 4px;
     background: var(--surface-solid); border:1px solid var(--line); border-radius: 12px;
@@ -201,6 +201,7 @@
   .si-email{ background:#3b82f622; color:#60a5fa; }
   .si-text{ background:#22c55e22; color:#4ade80; }
   .si-post{ background:#818cf822; color:#a5b4fc; }
+  .si-fb{ background:#3b5998; color:#c7d2fe; }
   .si-more{ background: var(--grad-soft); color: var(--gold); }
 
   .primary-btn{
@@ -324,8 +325,13 @@
         <div class="tier-tag paid">Stripe</div>
       </a>
       <a class="share-btn" id="shareFB" target="_blank">
-        <div class="share-icon si-post"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-2 0-3.5 1.4-3.5 3.4V11H8v3h2.5v6H14v-6h2.6l.4-3h-3V9.6c0-.5.3-.6.6-.6z" stroke="currentColor" stroke-width="1.2" fill="currentColor"/></svg></div>
+        <div class="share-icon si-post"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg></div>
         <span>Post</span>
+        <div class="tier-tag free">Free</div>
+      </a>
+      <a class="share-btn" id="shareFB2" target="_blank">
+        <div class="share-icon si-fb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-2 0-3.5 1.4-3.5 3.4V11H8v3h2.5v6H14v-6h2.6l.4-3h-3V9.6c0-.5.3-.6.6-.6z" stroke="currentColor" stroke-width="1.2" fill="currentColor"/></svg></div>
+        <span>Facebook</span>
         <div class="tier-tag free">Free</div>
       </a>
       <a class="share-btn" id="shareMore">
@@ -682,6 +688,10 @@ document.getElementById('shareText').addEventListener('click', async e=>{
   }
 });
 document.getElementById('shareFB').addEventListener('click', e=>{
+  e.preventDefault();
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText())}`, '_blank');
+});
+document.getElementById('shareFB2').addEventListener('click', e=>{
   e.preventDefault();
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://tapsag.shop')}&quote=${encodeURIComponent(shareText())}`, '_blank');
 });
