@@ -52,7 +52,8 @@ exports.handler = async (event) => {
         recipient_contact: meta.recipient_contact,
         personal_note: meta.personal_note,
         verse_text: meta.verse_text,
-        verse_ref: meta.verse_ref
+        verse_ref: meta.verse_ref,
+        gift_id: meta.gift_id
       });
     } catch (err) {
       console.error('Failed to send gift after payment:', err);

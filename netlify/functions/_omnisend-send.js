@@ -5,7 +5,7 @@
 
 const OMNISEND_API_BASE = 'https://api.omnisend.com/api';
 
-async function sendVerseGift({ sender_name, recipient_name, recipient_contact, personal_note, verse_text, verse_ref }) {
+async function sendVerseGift({ sender_name, recipient_name, recipient_contact, personal_note, verse_text, verse_ref, gift_id }) {
   const apiKey = process.env.OMNISEND_API_KEY;
   if (!apiKey) {
     throw new Error('Server not configured: missing OMNISEND_API_KEY');
@@ -15,8 +15,12 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
   }
 
   const isEmail = recipient_contact.includes('@');
-  const giftId = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  const returnLink = `https://tapsag.shop/g/${giftId}`;
+  // Use the gift_id from save-gift.js if provided (it already has the photo/video
+  // stored under this ID) — otherwise fall back to generating one, so this still
+  // works even if a caller doesn't save media first.
+  const giftId = gift_id || ('g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+  const siteUrl = process.env.URL || 'https://tapsag.shop';
+  const returnLink = `${siteUrl}/g/${giftId}`;
 
   const contactBody = {
     identifiers: isEmail
@@ -25,9 +29,13 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
     firstName: recipient_name
   };
 
-  const contactRes = await fetch(`${OMNISEND_API_BASE}/v3/contacts`, {
+  const contactRes = await fetch(`${OMNISEND_API_BASE}/contacts`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Omnisend-API-Key ${apiKey}`,
+      'Omnisend-Version': '2026-03-15'
+    },
     body: JSON.stringify(contactBody)
   });
   if (!contactRes.ok) {
@@ -53,7 +61,11 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
 
   const eventRes = await fetch(`${OMNISEND_API_BASE}/v5/events`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Omnisend-API-Key ${apiKey}`,
+      'Omnisend-Version': '2026-03-15'
+    },
     body: JSON.stringify(eventBody)
   });
   if (!eventRes.ok) {

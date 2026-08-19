@@ -19,16 +19,19 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
-  const { sender_name, recipient_name, recipient_contact, personal_note, verse_text, verse_ref } = data;
+  const { sender_name, recipient_name, recipient_contact, personal_note, verse_text, verse_ref, gift_id } = data;
   if (!sender_name || !recipient_name || !recipient_contact || !verse_text) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
+  }
+  if (!gift_id) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Missing gift_id — save the gift media first via /save-gift' }) };
   }
 
   const siteUrl = process.env.URL || 'https://tapsag.shop';
 
   const params = new URLSearchParams();
   params.append('mode', 'payment');
-  params.append('success_url', `${siteUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`);
+  params.append('success_url', `${siteUrl}/success.html?gift_id=${encodeURIComponent(gift_id)}&session_id={CHECKOUT_SESSION_ID}`);
   params.append('cancel_url', `${siteUrl}/`);
   params.append('line_items[0][price_data][currency]', 'usd');
   params.append('line_items[0][price_data][product_data][name]', 'Tapsag — Text Delivery');
@@ -40,6 +43,7 @@ exports.handler = async (event) => {
   params.append('metadata[personal_note]', personal_note || '');
   params.append('metadata[verse_text]', verse_text);
   params.append('metadata[verse_ref]', verse_ref || '');
+  params.append('metadata[gift_id]', gift_id);
 
   try {
     const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {

@@ -232,6 +232,34 @@
     <div class="edition-badge">Scripture</div>
   </header>
 
+  <!-- Recipient gift-view: shown at /g/:giftId instead of the builder below -->
+  <div id="giftView" style="display:none; padding: 24px 20px 60px;">
+    <div id="giftViewLoading" style="text-align:center; color:var(--muted); padding:60px 0;">Loading your gift…</div>
+    <div id="giftViewError" style="display:none; text-align:center; color:var(--muted); padding:60px 20px;">
+      <p>This gift link isn't valid or has expired.</p>
+      <a href="/" style="color:var(--gold); font-weight:700; text-decoration:none;">Send your own gift on Tapsag &rarr;</a>
+    </div>
+    <div id="giftViewContent" style="display:none;">
+      <div style="text-align:center; margin-bottom:18px;">
+        <div style="font-size:12px; letter-spacing:1px; color:var(--gold); font-weight:800; text-transform:uppercase;">A gift for you</div>
+        <div id="giftViewFrom" style="color:var(--muted); font-size:14px; margin-top:4px;"></div>
+      </div>
+      <div id="giftViewMediaWrap" style="border-radius:20px; overflow:hidden; border:1px solid var(--line); margin-bottom:20px;">
+        <img id="giftViewImg" style="display:none; width:100%; display:block;" />
+        <video id="giftViewVideo" style="display:none; width:100%; display:block;" controls playsinline></video>
+      </div>
+      <div style="background:var(--surface-solid); border:1px solid var(--line); border-radius:16px; padding:20px;">
+        <div id="giftViewRef" style="color:var(--gold); font-weight:700; font-size:13px; letter-spacing:.5px; margin-bottom:8px;"></div>
+        <div id="giftViewVerse" style="font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:20px; line-height:1.5; color:var(--text);"></div>
+        <div id="giftViewNote" style="margin-top:16px; color:var(--muted); font-size:14px; line-height:1.6;"></div>
+      </div>
+      <div style="text-align:center; margin-top:24px;">
+        <a href="/" style="color:var(--gold); font-weight:700; text-decoration:none; font-size:13px;">Send your own gift on Tapsag &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="builderApp">
   <div class="donate-strip">
     <div class="donate-left">
       <div class="donate-icon">$</div>
@@ -344,9 +372,50 @@
   </div>
 
   <footer>Scripture edition — preview build. Checkout &amp; email delivery come next. <br/><span class="fname">tapsag.shop</span></footer>
+  </div>
 </div>
 
 <script>
+// ---------- Gift-view mode (recipient landed via /g/:giftId link) ----------
+(function checkGiftView(){
+  const match = window.location.pathname.match(/^\/g\/(.+)$/);
+  if(!match) return;
+  const giftId = decodeURIComponent(match[1]);
+
+  document.getElementById('builderApp').style.display = 'none';
+  const giftView = document.getElementById('giftView');
+  giftView.style.display = 'block';
+  const loading = document.getElementById('giftViewLoading');
+  const errorEl = document.getElementById('giftViewError');
+  const content = document.getElementById('giftViewContent');
+
+  fetch('/.netlify/functions/get-gift?id=' + encodeURIComponent(giftId))
+    .then(res => { if(!res.ok) throw new Error('not found'); return res.json(); })
+    .then(gift => {
+      loading.style.display = 'none';
+      content.style.display = 'block';
+      document.getElementById('giftViewFrom').textContent = gift.sender_name
+        ? `From ${gift.sender_name}${gift.recipient_name ? ' to ' + gift.recipient_name : ''}`
+        : '';
+      document.getElementById('giftViewRef').textContent = (gift.verse_ref || '').toUpperCase();
+      document.getElementById('giftViewVerse').textContent = '"' + gift.verse_text + '"';
+      document.getElementById('giftViewNote').textContent = gift.personal_note || '';
+      if(gift.mediaType === 'video'){
+        const v = document.getElementById('giftViewVideo');
+        v.src = gift.mediaData;
+        v.style.display = 'block';
+      } else {
+        const img = document.getElementById('giftViewImg');
+        img.src = gift.mediaData;
+        img.style.display = 'block';
+      }
+    })
+    .catch(() => {
+      loading.style.display = 'none';
+      errorEl.style.display = 'block';
+    });
+})();
+
 // ---------- Verse data (KJV, public domain) ----------
 const VERSES = [
   ["Strength","Philippians 4:13","I can do all things through Christ which strengtheneth me."],
@@ -618,7 +687,7 @@ buildBtn.addEventListener('click', ()=>{
 
 // ---------- Share ----------
 function shareText(){
-  if(!selected) return 'Sent with love from Tapsag — turn a moment into a word for someone\\'s heart.';
+  if(!selected) return "Sent with love from Tapsag — turn a moment into a word for someone's heart.";
   const msg = document.getElementById('message').value.trim();
   let t = `"${selected.text}" — ${selected.ref}`;
   if(msg) t += `\\n\\n${msg}`;
@@ -646,38 +715,75 @@ function collectRecipientInfo(kind){
   return !!(window.__giftSender && window.__giftRecipient && window.__giftContact);
 }
 
+// Turn the current photo/video into base64 so it can be stored server-side.
+// Photo: use the already-composited canvas (verse + message baked in).
+// Video: read the raw file the user picked.
+function getMediaPayload(){
+  return new Promise((resolve, reject)=>{
+    if(mediaType === 'photo' && photoImg){
+      resolve({ mediaType:'photo', mediaData: canvas.toDataURL('image/jpeg', 0.85) });
+    } else if(mediaType === 'video'){
+      const file = document.getElementById('videoInput').files[0];
+      if(!file){ reject(new Error('No video file selected')); return; }
+      const reader = new FileReader();
+      reader.onload = () => resolve({ mediaType:'video', mediaData: reader.result });
+      reader.onerror = () => reject(new Error('Could not read video file'));
+      reader.readAsDataURL(file);
+    } else {
+      reject(new Error('Choose a photo or video first'));
+    }
+  });
+}
+
+// Saves the gift's media + verse to the server FIRST so both the email path
+// and the paid-text path can reference the same gift_id afterward.
+async function saveGiftAndGetId(){
+  const media = await getMediaPayload();
+  const f = giftFields();
+  const res = await fetch('/.netlify/functions/save-gift', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ ...media, ...f })
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || 'Could not save gift media');
+  return data.giftId;
+}
+
 document.getElementById('shareEmail').addEventListener('click', async e=>{
   e.preventDefault();
   if(!selected){ alert('Choose a verse first.'); return; }
+  if(!mediaType){ alert('Add a photo or video first.'); return; }
   if(!collectRecipientInfo('email')) return;
   const f = giftFields();
-  if(!f.recipient_contact.includes('@')){ alert('That doesn\\'t look like an email address.'); return; }
+  if(!f.recipient_contact.includes('@')){ alert("That doesn't look like an email address."); return; }
   const btn = e.currentTarget;
   btn.style.opacity = '.5';
   try{
+    const giftId = await saveGiftAndGetId();
     const res = await fetch('/.netlify/functions/send-gift', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(f)
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...f, gift_id: giftId })
     });
     const data = await res.json();
     if(!res.ok) throw new Error(data.error || 'Send failed');
-    alert('Sent! ' + f.recipient_name + ' will get the verse by email shortly.');
+    window.location.href = '/success.html?gift_id=' + encodeURIComponent(giftId);
   }catch(err){
     alert('Could not send: ' + err.message);
-  }finally{
     btn.style.opacity = '1';
   }
 });
 document.getElementById('shareText').addEventListener('click', async e=>{
   e.preventDefault();
   if(!selected){ alert('Choose a verse first.'); return; }
+  if(!mediaType){ alert('Add a photo or video first.'); return; }
   if(!collectRecipientInfo('text')) return;
   const f = giftFields();
   if(f.recipient_contact.includes('@')){ alert('That looks like an email — text delivery needs a phone number.'); return; }
   const btn = e.currentTarget;
   btn.style.opacity = '.5';
   try{
+    const giftId = await saveGiftAndGetId();
     const res = await fetch('/.netlify/functions/create-checkout-session', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(f)
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...f, gift_id: giftId })
     });
     const data = await res.json();
     if(!res.ok) throw new Error(data.error || 'Checkout failed');
