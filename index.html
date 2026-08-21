@@ -155,6 +155,7 @@
     position:absolute; left:0; right:0; bottom:0; z-index:2;
     display:flex; gap: 34px; justify-content:center; padding: 20px 0 16px;
     background: linear-gradient(0deg, #000000a0 0%, transparent 100%);
+    transform: translateZ(0); will-change: transform; contain: layout paint;
   }
   .cap-btn{ display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
   .cap-circle{
