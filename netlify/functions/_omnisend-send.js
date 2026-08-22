@@ -43,8 +43,10 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
   }
 
   const eventBody = {
-    email: isEmail ? recipient_contact : undefined,
-    phone: !isEmail ? recipient_contact : undefined,
+    origin: 'api',
+    contact: isEmail
+      ? { email: recipient_contact }
+      : { phone: recipient_contact },
     eventName: 'verse_gift_sent',
     eventTime: new Date().toISOString(),
     properties: {
@@ -59,7 +61,7 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
     }
   };
 
-  const eventRes = await fetch(`${OMNISEND_API_BASE}/v5/events`, {
+  const eventRes = await fetch(`${OMNISEND_API_BASE}/events`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
