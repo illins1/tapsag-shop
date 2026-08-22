@@ -1,828 +1,873 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>Tapsag — Scripture Edition | Take a Picture, Send a Gift</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0C0B14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Tapsag - Share a Verse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg: #0a0d16;
-    --surface: #12162277;
-    --surface-solid: #131826;
-    --surface-raised: #1a2032;
-    --line: #262d40;
-    --text: #f3f1ea;
-    --muted: #8c93a6;
-    --gold: #e8b84b;
-    --gold-soft: #e8b84b33;
-    --grad: linear-gradient(135deg, #fdb44b 0%, #e85d2c 100%);
-    --grad-soft: linear-gradient(135deg, #fdb44b22 0%, #e85d2c22 100%);
-  }
-  *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    background: var(--bg);
-    background-image:
-      radial-gradient(ellipse 600px 400px at 20% -10%, #e85d2c14, transparent),
-      radial-gradient(ellipse 500px 500px at 90% 10%, #fdb44b0f, transparent);
-    color: var(--text);
-    font-family: 'Manrope', sans-serif;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap{ max-width: 480px; margin: 0 auto; padding: 0 0 64px; }
+:root{
+  --bg:#0C0B14;--card:#13111F;--inp:#1A1828;--line:rgba(201,168,76,.2);
+  --gold:#C9A84C;--gl:#E4C76B;--gd:#8A6E2A;
+  --glow:rgba(201,168,76,.12);--glowb:rgba(201,168,76,.22);
+  --txt:#EDE8DA;--t2:#8A8070;--t3:#4A4438;
+  --grn:#27AE72;--gnb:rgba(39,174,114,.14);
+  --h:50px;--r:13px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;min-height:100dvh;overflow-x:hidden;}
+input,textarea,button,label{font-family:Inter,sans-serif;}
+a{color:inherit;text-decoration:none;}
+body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%);width:380px;height:300px;background:radial-gradient(ellipse,rgba(201,168,76,.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
 
-  /* Header */
-  header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 20px 20px 16px;
-  }
-  .brand{ display:flex; align-items:center; gap:10px; }
-  .logo{
-    width:38px; height:38px; border-radius:11px;
-    background: var(--grad);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces', serif; font-weight:600; font-size:19px; color:#1a0e02;
-    box-shadow: 0 4px 14px #e85d2c40;
-  }
-  .brand-text .name{ font-weight:800; font-size:16.5px; letter-spacing:-0.01em; line-height:1.1; }
-  .brand-text .tag{ font-size:9.5px; letter-spacing:.09em; color:var(--muted); text-transform:uppercase; font-weight:700; }
-  .edition-badge{
-    font-size: 10.5px; font-weight:700; letter-spacing:.05em;
-    color: var(--gold); border: 1px solid var(--gold-soft);
-    background: #e8b84b12; padding: 5px 10px; border-radius: 999px;
-    text-transform: uppercase;
-  }
+.bar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:54px;background:rgba(12,11,20,.97);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:600;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+.logo{display:flex;align-items:center;gap:9px;}
+.lm{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#8A6E2A,#E4C76B);display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;color:#08070F;flex-shrink:0;}
+.ln{font-family:"Cormorant Garamond",serif;font-size:19px;font-weight:700;}
+.ls{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--t2);}
+.donate-btn{display:flex;align-items:center;gap:5px;background:#00C846;color:#000;padding:7px 13px;border-radius:22px;font-size:12px;font-weight:800;flex-shrink:0;border:none;cursor:pointer;text-decoration:none;}
+.donate-btn svg{width:11px;height:11px;fill:#000;flex-shrink:0;}
 
-  /* Hero */
-  .hero{ padding: 10px 20px 22px; }
-  .hero h1{
-    font-family:'Fraunces', serif; font-weight:600; font-size: 30px; line-height:1.12;
-    margin: 0 0 10px; letter-spacing:-0.01em;
-  }
-  .hero h1 em{ font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip:text; color:transparent; }
-  .hero p{ margin:0; color: var(--muted); font-size: 14.5px; line-height:1.55; max-width: 38ch; }
+.pg{max-width:450px;margin:0 auto;padding:0 14px 110px;position:relative;z-index:1;}
 
-  /* Donate strip — persistent on every screen of the flow */
-  .donate-strip{
-    margin: 0 20px 14px; padding: 11px 12px 11px 13px; border-radius: 13px;
-    background: var(--surface-solid); border: 1px solid var(--gold-soft);
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-  }
-  .donate-left{ display:flex; align-items:center; gap:10px; }
-  .donate-icon{
-    width:30px; height:30px; border-radius:9px; background:#00c86422; color:#22c55e;
-    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; flex:0 0 auto;
-  }
-  .donate-title{ font-size:12.5px; font-weight:800; }
-  .donate-sub{ font-size:10.5px; color:var(--muted); }
-  .donate-btn{
-    background: #22c55e18; color:#4ade80; border:1px solid #22c55e40; padding:7px 13px;
-    border-radius:999px; font-size:12px; font-weight:800; text-decoration:none; white-space:nowrap;
-  }
+.hero{padding:24px 0 16px;text-align:center;position:relative;}
+.hero-feat{position:absolute;inset:0;border-radius:14px;background-size:cover;background-position:center;opacity:0;transition:opacity .4s;pointer-events:none;}
+.hero-feat.show{opacity:.22;}
+.hero-feat-btn{position:absolute;top:6px;right:0;font-size:10px;font-weight:700;color:var(--t3);border:1px solid var(--line);background:rgba(12,11,20,.75);padding:4px 9px;border-radius:16px;cursor:pointer;z-index:2;}
+.hero-content{position:relative;z-index:2;}
+.eye{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--gold);margin-bottom:7px;}
+.hero h1{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1.22;margin-bottom:6px;}
+.hero h1 em{color:var(--gl);font-style:italic;}
+.hero-sub{color:var(--t2);font-size:13px;line-height:1.65;margin-bottom:14px;max-width:290px;margin-left:auto;margin-right:auto;}
 
-  /* Step shell */
-  .step{ padding: 22px 20px 0; }
-  .step-head{ display:flex; align-items:baseline; gap:9px; margin-bottom: 12px; }
-  .step-num{
-    font-family:'Fraunces', serif; font-style:italic; color: var(--gold); font-size:13px; font-weight:500;
-  }
-  .step-title{ font-size: 15.5px; font-weight: 800; letter-spacing:-0.01em; }
-  .step-sub{ color:var(--muted); font-size:12.5px; margin: -6px 0 14px 0; }
+.del-tabs{display:flex;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:3px;gap:2px;margin-bottom:14px;}
+.dtab{flex:1;padding:8px 4px;text-align:center;border-radius:18px;font-size:11px;font-weight:700;color:var(--t2);background:transparent;border:none;cursor:pointer;transition:all .2s;line-height:1.3;}
+.dtab.on{background:var(--glow);color:var(--gl);border:1px solid var(--glowb);}
+.dtab-lbl{display:block;font-size:12px;}
+.dtab-sub{font-size:9px;font-weight:600;display:block;margin-top:1px;}
+.sub-free{color:var(--grn);}
+.sub-pay{color:#7B77FF;}
 
-  /* Verse picker */
-  .cats{ display:flex; gap:7px; overflow-x:auto; padding-bottom:12px; -ms-overflow-style:none; scrollbar-width:none; }
-  .cats::-webkit-scrollbar{ display:none; }
-  .cat-chip{
-    flex:0 0 auto; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line);
-    background: var(--surface-solid); color: var(--muted); font-size: 12.5px; font-weight:700;
-    white-space:nowrap; cursor:pointer; transition: all .15s ease;
-  }
-  .cat-chip.active{ background: var(--grad); color:#1a0e02; border-color: transparent; }
+.gbox{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
 
-  .search{
-    width:100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line);
-    background: var(--surface-solid); color: var(--text); font-size: 13.5px; font-family:'Manrope';
-    margin-bottom: 12px; outline:none;
-  }
-  .search::placeholder{ color: #545c70; }
-  .search:focus{ border-color: var(--gold-soft); }
+.mview{
+  position:relative;min-height:220px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(155deg,#0d1a22 0%,#18102e 50%,#0e1d12 100%);
+  cursor:pointer;overflow:hidden;
+}
+.mview::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 65% 45% at 50% 0%,rgba(201,168,76,.1) 0%,transparent 65%);pointer-events:none;}
+.mview.filled{cursor:default;}
+.mview.filled::before{display:none;}
 
-  .verse-list{
-    display:flex; flex-direction:column; gap:8px; max-height: 300px; overflow-y:auto;
-    padding-right: 2px; margin-bottom: 6px;
-  }
-  .verse-card{
-    background: var(--surface-solid); border: 1px solid var(--line); border-left: 3px solid var(--line);
-    border-radius: 10px; padding: 12px 13px; cursor:pointer; transition: all .15s ease;
-  }
-  .verse-card:hover{ border-color: #e8b84b55; }
-  .verse-card.selected{
-    border-left-color: var(--gold); background: var(--surface-raised);
-    box-shadow: inset 0 0 0 1px #e8b84b30;
-  }
-  .verse-ref{ font-size: 10.5px; font-weight:800; color: var(--gold); letter-spacing:.04em; text-transform:uppercase; margin-bottom:4px; }
-  .verse-text{ font-family:'Fraunces', serif; font-style:italic; font-size:13.5px; line-height:1.45; color:#e5e2d8; }
-  .verse-count{ font-size:11px; color:var(--muted); margin: 2px 0 10px; }
+.mempty{display:flex;flex-direction:column;align-items:center;gap:16px;padding:22px 20px;pointer-events:none;}
+.mempty-hint{font-family:"Cormorant Garamond",serif;font-size:13px;font-style:italic;color:rgba(237,232,218,.35);text-align:center;max-width:200px;line-height:1.6;}
+.mcap-row{display:flex;gap:12px;pointer-events:all;}
+.mcap{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:15px 26px;border-radius:11px;min-width:106px;
+  background:rgba(201,168,76,.1);border:1px solid var(--glowb);
+  color:var(--txt);cursor:pointer;transition:all .2s;
+}
+.mcap:active{background:rgba(201,168,76,.2);transform:scale(.95);}
+.mcap-ic{font-size:28px;}
+.mcap-lbl{font-size:13px;font-weight:600;}
+.mupload-link{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline;text-underline-offset:2px;pointer-events:all;}
 
-  .selected-strip{
-    display:none; align-items:center; gap:10px; margin-top:10px; padding:10px 12px;
-    background: var(--grad-soft); border:1px solid var(--gold-soft); border-radius:10px;
-  }
-  .selected-strip.show{ display:flex; }
-  .selected-strip .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); flex:0 0 auto; }
-  .selected-strip span{ font-size:12px; color:var(--gold); font-weight:700; }
+.mview img,.mview video{width:100%;max-height:270px;object-fit:cover;display:block;position:relative;z-index:1;}
+.mview iframe{width:100%;height:220px;border:none;display:block;position:relative;z-index:1;}
+.mclear{position:absolute;top:9px;right:9px;width:30px;height:30px;border-radius:50%;background:rgba(12,11,20,.85);border:1px solid var(--line);color:var(--t2);font-size:14px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:5;border:none;}
+.mview.filled .mclear{display:flex;}
 
-  /* Capture */
-  .capture-box{
-    position:relative; width:100%; aspect-ratio: 4/3; border-radius: 16px; overflow:hidden;
-    background: linear-gradient(160deg, #1a2438 0%, #0f1420 100%); border: 1px solid var(--line);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .capture-box canvas, .capture-box video, .capture-box img{
-    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;
-  }
-  .capture-box.has-media canvas{ display:block; }
-  .capture-box.has-video video{ display:block; }
-  .capture-placeholder{ text-align:center; color: #4a536a; padding: 20px; position:relative; z-index:1; pointer-events:none; }
-  .capture-placeholder svg{ opacity:.4; margin-bottom:8px; }
-.capture-box.has-media #defaultBg, .capture-box.has-video #defaultBg{ display:none; }
+.rec-ov{position:absolute;inset:0;background:rgba(8,6,14,.82);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:4;}
+.rdot{width:13px;height:13px;border-radius:50%;background:#FF3B3B;animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.rtime{font-size:34px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;}
+.rlbl{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;}
+.rstop{padding:10px 22px;background:#FF3B3B;color:#fff;border:none;border-radius:22px;font-size:13px;font-weight:700;cursor:pointer;}
+.mbar{height:3px;background:rgba(201,168,76,.18);display:none;}
+.mbar-fill{height:100%;background:var(--gold);width:0%;}
 
-  /* Buttons float ON TOP of the preview, like the original */
-  .capture-actions{
-    position:absolute; left:0; right:0; bottom:0; z-index:2;
-    display:flex; gap: 34px; justify-content:center; padding: 20px 0 16px;
-    background: linear-gradient(0deg, #000000a0 0%, transparent 100%);
-  }
-  .cap-btn{ display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
-  .cap-circle{
-    width:50px; height:50px; border-radius:50%; background: #00000066;
-    border: 1.5px solid #ffffff40; backdrop-filter: blur(6px);
-    display:flex; align-items:center; justify-content:center;
-    transition: all .15s ease;
-  }
-  .cap-btn:active .cap-circle{ transform: scale(.93); }
-  .cap-label{ font-size: 10px; font-weight:800; letter-spacing:.08em; color: #fff; text-shadow:0 1px 3px #000; }
-  input[type=file]{ display:none; }
+.murl{display:none;border-top:1px solid var(--line);}
+.murl input{width:100%;padding:12px 14px;background:var(--inp);border:none;color:var(--txt);font-size:14px;outline:none;}
+.murl input::placeholder{color:var(--t3);}
 
-  .video-overlay-caption{
-    position:absolute; left:0; right:0; bottom:0; padding: 16px 16px 14px;
-    background: linear-gradient(0deg, #000000cc 0%, transparent 100%);
-    display:none;
-  }
-  .capture-box.has-video .video-overlay-caption{ display:block; }
-  .video-overlay-caption .vref{ font-size:9px; color:var(--gold); font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
-  .video-overlay-caption .vtxt{ font-family:'Fraunces', serif; font-style:italic; font-size:13px; color:#fff; margin-top:3px; line-height:1.35; }
+.mstrip{border-top:1px solid var(--line);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);}
+.mstrip-lbl{font-size:11px;color:var(--t3);}
+.mstrip-btns{display:flex;gap:6px;}
+.msb{padding:8px 11px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid var(--line);background:var(--inp);color:var(--t2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.msb:active{border-color:var(--gold);color:var(--gl);}
 
-  /* Message */
-  textarea{
-    width:100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line);
-    background: var(--surface-solid); color: var(--text); font-family:'Manrope'; font-size: 13.5px;
-    resize:none; min-height: 72px; outline:none; line-height:1.5;
-  }
-  textarea::placeholder{ color:#545c70; }
-  textarea:focus{ border-color: var(--gold-soft); }
+.msg-wrap{padding:13px 14px;border-top:1px solid var(--line);}
+.msg-wrap label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t2);margin-bottom:5px;}
+.msg-wrap textarea{width:100%;padding:11px 13px;background:var(--inp);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-size:15px;outline:none;resize:vertical;min-height:70px;transition:border .2s;}
+.msg-wrap textarea:focus{border-color:var(--gold);}
+.msg-wrap textarea::placeholder{color:var(--t3);}
 
-  /* Share */
-  .share-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap:7px; margin-top:16px; }
-  .share-btn{
-    display:flex; flex-direction:column; align-items:center; gap:7px; padding: 12px 4px;
-    background: var(--surface-solid); border:1px solid var(--line); border-radius: 12px;
-    cursor:pointer; transition: all .15s ease; color: var(--text); text-decoration:none;
-  }
-  .share-btn:active{ transform: scale(.96); background: var(--surface-raised); }
-  .share-icon{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; }
-  .share-btn span{ font-size: 10px; font-weight:700; color: var(--muted); }
-  .tier-tag{ font-size:8.5px; font-weight:800; letter-spacing:.03em; padding:2px 7px; border-radius:999px; margin-top:1px; }
-  .tier-tag.free{ background:#22c55e1e; color:#4ade80; }
-  .tier-tag.paid{ background: var(--grad-soft); color: var(--gold); }
-  .si-email{ background:#3b82f622; color:#60a5fa; }
-  .si-text{ background:#22c55e22; color:#4ade80; }
-  .si-post{ background:#818cf822; color:#a5b4fc; }
-  .si-fb{ background:#3b5998; color:#c7d2fe; }
-  .si-more{ background: var(--grad-soft); color: var(--gold); }
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.fcard-head{padding:14px 14px 0;}
+.fcard-ttl{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:600;color:var(--gl);margin-bottom:13px;}
+.del-panel{display:none;padding:0 14px 14px;}.del-panel.on{display:block;}
+.pnote{background:var(--inp);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12px;color:var(--t2);text-align:center;margin-bottom:12px;}
+.pnote strong{color:var(--gl);}
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t2);margin-bottom:4px;}
+.field input{width:100%;height:var(--h);padding:0 13px;background:var(--inp);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-size:15px;outline:none;transition:border .2s;}
+.field input:focus{border-color:var(--gold);}
+.field input::placeholder{color:var(--t3);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.divider{display:flex;align-items:center;gap:10px;margin:11px 0;color:var(--t3);font-size:11px;}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line);}
+.ghost-btn{width:100%;height:var(--h);border-radius:9px;font-size:14px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;}
+.ghost-btn:active{border-color:var(--gold);color:var(--gl);}
 
-  .primary-btn{
-    width:100%; padding: 14px; border-radius: 13px; border:none; margin-top: 16px;
-    background: var(--grad); color:#1a0e02; font-family:'Manrope'; font-weight:800; font-size:14px;
-    cursor:pointer; letter-spacing:-0.005em; box-shadow: 0 8px 20px #e85d2c30;
-  }
-  .primary-btn:disabled{ opacity:.4; box-shadow:none; }
-  .primary-btn:active:not(:disabled){ transform: scale(.985); }
+.soc-note{font-size:12px;color:var(--t2);margin-bottom:11px;line-height:1.55;}
+.soc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px;}
+.sb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;background:var(--inp);border:1px solid var(--line);border-radius:9px;cursor:pointer;transition:all .2s;}
+.sb:active{transform:scale(.9);border-color:var(--gold);background:var(--glow);}
+.sb .si{font-size:20px;}
+.sb .sn{font-size:9px;font-weight:600;color:var(--t2);text-align:center;line-height:1.2;}
+.copy-btn{width:100%;padding:11px;border-radius:9px;font-size:13px;font-weight:700;border:1px solid var(--line);background:transparent;color:var(--t2);cursor:pointer;transition:all .2s;}
+.copy-btn:active{border-color:var(--gold);color:var(--gl);}
 
-  .ghost-note{ text-align:center; font-size:11px; color:#545c70; margin-top:10px; line-height:1.5; }
+.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec-lbl::after{content:"";flex:1;height:1px;background:var(--line);}
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px;}
+.srch{position:relative;margin-bottom:9px;}
+.srch input{width:100%;height:var(--h);padding:0 13px 0 40px;background:var(--inp);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-size:15px;outline:none;transition:border .2s;}
+.srch input:focus{border-color:var(--gold);}
+.srch input::placeholder{color:var(--t3);}
+.srch-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;}
+.cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:9px;scrollbar-width:none;}
+.cats::-webkit-scrollbar{display:none;}
+.cat{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;border:1px solid var(--line);background:transparent;color:var(--t2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.cat.on{background:var(--glow);border-color:var(--glowb);color:var(--gl);}
+.vlist{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;scrollbar-width:thin;scrollbar-color:var(--line) transparent;}
+.vc{padding:11px;background:var(--inp);border:1px solid transparent;border-radius:9px;cursor:pointer;transition:all .2s;}
+.vc.sel{border-color:var(--gold);background:var(--glow);}
+.vref{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.vtxt{font-family:"Cormorant Garamond",serif;font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.vc.sel .vtxt{-webkit-line-clamp:unset;}
+.vshow{background:var(--glow);border:1px solid var(--glowb);border-radius:9px;padding:14px 14px 12px;margin-bottom:12px;display:none;position:relative;overflow:hidden;}
+.vshow.on{display:block;}
+.vshow::before{content:"\201C";font-family:"Cormorant Garamond",serif;font-size:60px;color:var(--gold);opacity:.14;position:absolute;top:-12px;left:5px;line-height:1;pointer-events:none;}
+.vshow-txt{font-family:"Cormorant Garamond",serif;font-size:16px;font-style:italic;line-height:1.65;padding-top:4px;}
+.vshow-ref{font-size:11px;font-weight:700;color:var(--gold);margin-top:8px;text-align:right;}
 
-  footer{ text-align:center; padding: 30px 20px 0; color:#3f4658; font-size:11px; }
-  footer .fname{ color: var(--gold); font-weight:700; }
+.donate-bar{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:14px;}
+.donate-bar p{font-size:13px;color:var(--t2);margin-bottom:12px;line-height:1.6;}
+.donate-bar p strong{color:var(--txt);}
+.donate-link{display:inline-flex;align-items:center;gap:6px;background:#00C846;color:#000;padding:11px 24px;border-radius:22px;font-size:14px;font-weight:800;text-decoration:none;transition:all .2s;}
+.donate-link:active{transform:scale(.97);}
+.donate-link svg{width:13px;height:13px;fill:#000;}
+
+.foot-links{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.foot-links a{color:var(--gold);font-size:12px;}
+.foot-links span{color:var(--t3);}
+
+.modal-ov{position:fixed;inset:0;background:rgba(8,6,14,.85);z-index:900;display:none;align-items:flex-end;justify-content:center;padding:0;}
+.modal-ov.open{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-box{
+  width:100%;max-width:460px;max-height:80dvh;overflow-y:auto;
+  background:var(--card);border-top:1px solid var(--glowb);
+  border-radius:16px 16px 0 0;padding:24px 20px 40px;
+}
+.modal-box h2{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;color:var(--gl);margin-bottom:12px;}
+.modal-box p{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:10px;}
+.modal-box a{color:var(--gold);}
+.modal-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--inp);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.sticky{position:sticky;bottom:0;left:0;right:0;z-index:500;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 60%,transparent 100%);}
+.send-btn{width:100%;height:52px;border-radius:11px;font-size:15px;font-weight:700;border:none;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;cursor:pointer;transition:all .2s;}
+.send-btn:active{transform:scale(.98);}
+.send-btn.stripe-mode{background:#635BFF;color:#fff;}
+
+.succ{display:none;text-align:center;padding:50px 20px 40px;}
+.succ.on{display:block;}
+.succ-ic{font-size:52px;margin-bottom:11px;}
+.succ-h{font-family:"Cormorant Garamond",serif;font-size:27px;font-weight:700;color:var(--gl);margin-bottom:9px;}
+.succ-p{color:var(--t2);font-size:14px;line-height:1.65;margin-bottom:22px;}
+.reset-btn{width:100%;max-width:230px;height:50px;border-radius:11px;font-size:15px;font-weight:700;border:none;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;cursor:pointer;display:block;margin:0 auto;}
+
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--card);border:1px solid var(--glowb);color:var(--txt);padding:11px 20px;border-radius:24px;font-size:13px;font-weight:600;transition:transform .3s;z-index:9999;white-space:nowrap;max-width:88vw;text-align:center;pointer-events:none;}
+.toast.on{transform:translateX(-50%) translateY(0);}
+
+.foot{text-align:center;padding:16px 14px 24px;color:var(--t3);font-size:12px;border-top:1px solid var(--line);}
+.foot a{color:var(--gold);}
+
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top:2px solid #fff;border-radius:50%;animation:sp .8s linear infinite;flex-shrink:0;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.hi{position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;}
 </style>
+
+<script type="text/javascript">
+  window.omnisend = window.omnisend || [];
+  omnisend.push(["brandID", "6a21801a96bec9e135e5990a"]);
+  omnisend.push(["track", "$pageViewed"]);
+  !function(){var e=document.createElement("script");
+  e.type="text/javascript",e.async=!0,
+  e.src="https://omnisnippet1.com/inshop/launcher-v2.js";
+  var t=document.getElementsByTagName("script")[0];
+  t.parentNode.insertBefore(e,t)}();
+
+function showPrivacy(){ document.getElementById("privacyModal").classList.add("open"); document.body.style.overflow="hidden"; }
+function showTerms(){ document.getElementById("termsModal").classList.add("open"); document.body.style.overflow="hidden"; }
+function closeModal(id){ document.getElementById(id).classList.remove("open"); document.body.style.overflow=""; }
+</script>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <div class="brand">
-      <div class="logo">T</div>
-      <div class="brand-text">
-        <div class="name">Tapsag</div>
-        <div class="tag">Take a picture, send a gift</div>
-      </div>
-    </div>
-    <div class="edition-badge">Scripture</div>
-  </header>
-
-  <!-- Recipient gift-view: shown at /g/:giftId instead of the builder below -->
-  <div id="giftView" style="display:none; padding: 24px 20px 60px;">
-    <div id="giftViewLoading" style="text-align:center; color:var(--muted); padding:60px 0;">Loading your gift…</div>
-    <div id="giftViewError" style="display:none; text-align:center; color:var(--muted); padding:60px 20px;">
-      <p>This gift link isn't valid or has expired.</p>
-      <a href="/" style="color:var(--gold); font-weight:700; text-decoration:none;">Send your own gift on Tapsag &rarr;</a>
-    </div>
-    <div id="giftViewContent" style="display:none;">
-      <div style="text-align:center; margin-bottom:18px;">
-        <div style="font-size:12px; letter-spacing:1px; color:var(--gold); font-weight:800; text-transform:uppercase;">A gift for you</div>
-        <div id="giftViewFrom" style="color:var(--muted); font-size:14px; margin-top:4px;"></div>
-      </div>
-      <div id="giftViewMediaWrap" style="border-radius:20px; overflow:hidden; border:1px solid var(--line); margin-bottom:20px;">
-        <img id="giftViewImg" style="display:none; width:100%; display:block;" />
-        <video id="giftViewVideo" style="display:none; width:100%; display:block;" controls playsinline></video>
-      </div>
-      <div style="background:var(--surface-solid); border:1px solid var(--line); border-radius:16px; padding:20px;">
-        <div id="giftViewRef" style="color:var(--gold); font-weight:700; font-size:13px; letter-spacing:.5px; margin-bottom:8px;"></div>
-        <div id="giftViewVerse" style="font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:20px; line-height:1.5; color:var(--text);"></div>
-        <div id="giftViewNote" style="margin-top:16px; color:var(--muted); font-size:14px; line-height:1.6;"></div>
-      </div>
-      <div style="text-align:center; margin-top:24px;">
-        <a href="/" style="color:var(--gold); font-weight:700; text-decoration:none; font-size:13px;">Send your own gift on Tapsag &rarr;</a>
-      </div>
+<header class="bar">
+  <div class="logo">
+    <div class="lm">T</div>
+    <div>
+      <div class="ln">Tapsag</div>
+      <div class="ls">Share Inspiration</div>
     </div>
   </div>
+  <a href="https://cash.app/$tapsag1" target="_blank" rel="noopener" class="donate-btn" title="Support Tapsag - donate via CashApp">
+    <svg viewBox="0 0 24 24"><path d="M20.15 4.58C18.42 2.84 16.06 2 13.5 2c-2.87 0-5.22.93-6.94 2.62C4.84 6.29 4 8.57 4 11.5c0 2.62.84 4.97 2.36 6.64C7.94 19.9 10.2 21 13 21h.5c2.56 0 4.96-.86 6.62-2.38C21.9 17.08 23 14.67 23 12v-.5c0-2.75-.96-5.12-2.85-6.92z"/></svg>
+    $tapsag1
+  </a>
+</header>
 
-  <div id="builderApp">
-  <div class="donate-strip">
-    <div class="donate-left">
-      <div class="donate-icon">$</div>
-      <div>
-        <div class="donate-title">Support Tapsag</div>
-        <div class="donate-sub">Pay‑what‑you‑want via Cash App</div>
-      </div>
-    </div>
-    <a class="donate-btn" href="https://cash.app/$tapsag1" target="_blank" rel="noopener">$tapsag1</a>
-  </div>
+<input class="hi" type="file" id="inPhotoCamera" accept="image/*" capture="environment" onchange="onPhoto(this)">
+<input class="hi" type="file" id="inPhotoGallery" accept="image/*" onchange="onPhoto(this)">
+<input class="hi" type="file" id="inVideoCamera" accept="video/*" capture="environment" onchange="onVideo(this)">
+<input class="hi" type="file" id="inVideoGallery" accept="video/*" onchange="onVideo(this)">
+<input class="hi" type="file" id="inFeatured" accept="image/*" onchange="setFeat(this)">
+
+<main class="pg">
 
   <div class="hero">
-    <h1>Turn a photo or video into a <em>scripture gift</em> in 30 seconds.</h1>
-    <p>Choose a verse, capture a moment, attach a personal message, send a one-of-a-kind gift.</p>
-  </div>
+    <div class="hero-feat" id="heroFeat"></div>
+    <button class="hero-feat-btn" onclick="document.getElementById('inFeatured').click()">Change Background</button>
+    <div class="hero-content">
+      <div class="eye">&#x271D; Spread the Word</div>
+      <h1>Share a <em>Verse</em> of Inspiration<br>with loved ones</h1>
+      <p class="hero-sub">Select a Bible verse, add your photo or video, write a message, and send it straight to their heart.</p>
 
-  <!-- STEP 1: VERSE -->
-  <div class="step">
-    <div class="step-head"><span class="step-num">One</span><span class="step-title">Choose a verse</span></div>
-    <div class="step-sub" id="verseSub">80 verses across 10 themes — search or browse</div>
-
-    <input class="search" id="search" placeholder="Search a word, feeling, or reference…" />
-
-    <div class="cats" id="cats"></div>
-    <div class="verse-count" id="verseCount"></div>
-    <div class="verse-list" id="verseList"></div>
-
-    <div class="selected-strip" id="selectedStrip">
-      <div class="dot"></div>
-      <span id="selectedLabel"></span>
-    </div>
-  </div>
-
-  <!-- STEP 2: CAPTURE -->
-  <div class="step">
-    <div class="step-head"><span class="step-num">Two</span><span class="step-title">Capture the moment</span></div>
-    <div class="step-sub">A photo becomes a keepsake card. A video keeps its own caption.</div>
-
-    <div class="capture-box" id="captureBox">
-      <img src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=900&q=70" alt="" style="display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" id="defaultBg" />
-      <div class="capture-placeholder" style="position:relative; z-index:1;">
-      </div>
-      <canvas id="canvas"></canvas>
-      <video id="videoPreview" muted playsinline controls></video>
-      <div class="video-overlay-caption" id="videoCaption">
-        <div class="vref" id="vcapRef"></div>
-        <div class="vtxt" id="vcapTxt"></div>
-      </div>
-
-      <div class="capture-actions">
-        <label class="cap-btn">
-          <div class="cap-circle">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" stroke="#f3f1ea" stroke-width="1.5"/><circle cx="12" cy="13" r="3.2" stroke="#f3f1ea" stroke-width="1.5"/></svg>
-          </div>
-          <div class="cap-label">SNAP</div>
-          <input type="file" id="photoInput" accept="image/*" capture="environment" />
-        </label>
-        <label class="cap-btn video">
-          <div class="cap-circle">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3.5l4 3V7.5l-4 3z" stroke="#1a0e02" stroke-width="1.5"/></svg>
-          </div>
-          <div class="cap-label">REC</div>
-          <input type="file" id="videoInput" accept="video/*" capture="environment" />
-        </label>
+      <div class="del-tabs">
+        <button class="dtab on" onclick="setDel(this,'email')" id="tab-email">
+          <span class="dtab-lbl">&#x2709;&#xFE0F; Email</span>
+          <span class="dtab-sub sub-free">Totally Free</span>
+        </button>
+        <button class="dtab" onclick="setDel(this,'sms')" id="tab-sms">
+          <span class="dtab-lbl">&#x1F4AC; SMS Text</span>
+          <span class="dtab-sub sub-pay">$3.99 / send</span>
+        </button>
+        <button class="dtab" onclick="setDel(this,'social')" id="tab-social">
+          <span class="dtab-lbl">&#x1F517; Social DM</span>
+          <span class="dtab-sub sub-free">Free</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- STEP 3: MESSAGE -->
-  <div class="step">
-    <div class="step-head"><span class="step-num">Three</span><span class="step-title">Add your own words</span></div>
-    <div class="step-sub">Optional — shows up alongside the verse when you share.</div>
-    <textarea id="message" placeholder="Add a personal message to your gift…"></textarea>
-  </div>
+  <div class="gbox">
 
-  <!-- STEP 4: SHARE -->
-  <div class="step">
-    <div class="step-head"><span class="step-num">Four</span><span class="step-title">Send the gift</span></div>
+    <div class="mview" id="mview">
 
-    <button class="primary-btn" id="buildBtn" disabled>Choose a verse + photo to build your gift</button>
+      <div class="mempty" id="mempty">
+        <div class="mempty-hint">"A memory shared is a gift given twice"</div>
+        <div class="mcap-row">
+          <label class="mcap" for="inPhotoCamera">
+            <span class="mcap-ic">&#x1F4F7;</span>
+            <span class="mcap-lbl">Photo</span>
+          </label>
+          <label class="mcap" id="videoLabel" for="inVideoCamera" onclick="handleVideoTap(event)">
+            <span class="mcap-ic">&#x1F3AC;</span>
+            <span class="mcap-lbl">Video</span>
+          </label>
+        </div>
+        <span class="mupload-link" onclick="document.getElementById('inPhotoGallery').click()">Or upload from your device</span>
+      </div>
 
-    <div class="share-grid">
-      <a class="share-btn" id="shareEmail">
-        <div class="share-icon si-email"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.6"/></svg></div>
-        <span>Email</span>
-        <div class="tier-tag free">Free</div>
-      </a>
-      <a class="share-btn" id="shareText">
-        <div class="share-icon si-text"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H8l-4 4V5z" stroke="currentColor" stroke-width="1.6"/></svg></div>
-        <span>Text</span>
-        <div class="tier-tag paid">Stripe</div>
-      </a>
-      <a class="share-btn" id="shareFB" target="_blank">
-        <div class="share-icon si-post"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg></div>
-        <span>Post</span>
-        <div class="tier-tag free">Free</div>
-      </a>
-      <a class="share-btn" id="shareFB2" target="_blank">
-        <div class="share-icon si-fb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-2 0-3.5 1.4-3.5 3.4V11H8v3h2.5v6H14v-6h2.6l.4-3h-3V9.6c0-.5.3-.6.6-.6z" stroke="currentColor" stroke-width="1.2" fill="currentColor"/></svg></div>
-        <span>Facebook</span>
-        <div class="tier-tag free">Free</div>
-      </a>
-      <a class="share-btn" id="shareMore">
-        <div class="share-icon si-more"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18" cy="12" r="1.6" fill="currentColor"/></svg></div>
-        <span>More</span>
-        <div class="tier-tag free">Free</div>
-      </a>
+      <img id="outPhoto" src="" alt="" style="display:none;">
+      <video id="outCam" autoplay playsinline muted style="display:none;width:100%;max-height:270px;object-fit:cover;"></video>
+      <video id="outVideo" controls style="display:none;width:100%;max-height:270px;object-fit:cover;"></video>
+      <iframe id="outYT" src="" style="display:none;width:100%;height:220px;border:none;" allowfullscreen></iframe>
+
+      <button class="mclear" onclick="clearMedia()">&#x2715;</button>
+
+      <div class="rec-ov" id="recOv">
+        <div class="rdot"></div>
+        <div class="rtime" id="rtime">0:30</div>
+        <div class="rlbl">Recording</div>
+        <button class="rstop" onclick="stopRec()">Stop &amp; Use</button>
+      </div>
     </div>
-    <div class="ghost-note">Email is free and sends right now through Omnisend. Text costs $2 and runs through real Stripe checkout — both are fully wired, they just need your API keys live in Netlify to actually fire (see setup notes).</div>
+
+    <div class="mbar" id="mbar"><div class="mbar-fill" id="mbarFill"></div></div>
+
+    <div class="murl" id="murlRow">
+      <input type="url" id="murlIn" placeholder="Paste photo URL or YouTube link..." oninput="handleUrl(this.value)">
+    </div>
+
+    <div class="mstrip">
+      <span class="mstrip-lbl">Camera &#x2022; gallery &#x2022; URL</span>
+      <div class="mstrip-btns">
+        <button class="msb" onclick="toggleUrl()">&#x1F517; URL</button>
+        <label class="msb" for="inPhotoGallery">&#x1F4C1; Gallery</label>
+        <label class="msb" for="inPhotoCamera">&#x1F4F7; Camera</label>
+      </div>
+    </div>
+
+    <div class="msg-wrap">
+      <label for="msgField">Your Message <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--t3)">(optional — sent with your verse)</span></label>
+      <textarea id="msgField" placeholder="Write words of encouragement, love, or prayer..."></textarea>
+    </div>
+
   </div>
 
-  <footer>Scripture edition — preview build. Checkout &amp; email delivery come next. <br/><span class="fname">tapsag.shop</span></footer>
+  <div class="fcard">
+    <div class="fcard-head">
+      <div class="fcard-ttl">Send Your Gift</div>
+    </div>
+
+    <div class="del-panel on" id="pan-email">
+      <div class="pnote">&#x2709;&#xFE0F; Email is <strong>completely free</strong> &mdash; no account needed</div>
+      <div class="row2">
+        <div class="field"><label>Your Name</label><input type="text" id="fromName" placeholder="From..."></div>
+        <div class="field"><label>Recipient</label><input type="text" id="toName" placeholder="To..."></div>
+      </div>
+      <div class="field"><label>Your Email</label><input type="email" id="fromEmail" placeholder="your@email.com"></div>
+      <div class="field"><label>Their Email &#x2731;</label><input type="email" id="toEmail" placeholder="their@email.com"></div>
+      <div class="divider">or share a link instead</div>
+      <button class="ghost-btn" onclick="copyLink()">&#x1F517; Copy Shareable Link</button>
+    </div>
+
+    <div class="del-panel" id="pan-sms">
+      <div class="pnote">&#x1F4AC; One-time payment of <strong>$3.99</strong> per message via Stripe</div>
+      <div class="row2">
+        <div class="field"><label>Your Name</label><input type="text" id="fromNameS" placeholder="From..."></div>
+        <div class="field"><label>Recipient</label><input type="text" id="toNameS" placeholder="To..."></div>
+      </div>
+      <div class="field"><label>Their Phone &#x2731;</label><input type="tel" id="toPhone" placeholder="+1 (555) 000-0000"></div>
+    </div>
+
+    <div class="del-panel" id="pan-social">
+      <p class="soc-note">Tap a platform to open it and send your verse as a DM. For apps that don&rsquo;t allow direct links, it auto-copies &mdash; just paste. &#x1F64F;</p>
+      <div class="soc-grid">
+        <div class="sb" onclick="social('whatsapp')"><span class="si">&#x1F4AC;</span><span class="sn">WhatsApp</span></div>
+        <div class="sb" onclick="social('instagram')"><span class="si">&#x1F4F8;</span><span class="sn">Instagram</span></div>
+        <div class="sb" onclick="social('facebook')"><span class="si">&#x1F465;</span><span class="sn">Facebook</span></div>
+        <div class="sb" onclick="social('twitter')"><span class="si">&#x1F426;</span><span class="sn">X / Twitter</span></div>
+        <div class="sb" onclick="social('linkedin')"><span class="si">&#x1F4BC;</span><span class="sn">LinkedIn</span></div>
+        <div class="sb" onclick="social('telegram')"><span class="si">&#x2708;&#xFE0F;</span><span class="sn">Telegram</span></div>
+        <div class="sb" onclick="social('tiktok')"><span class="si">&#x1F3B5;</span><span class="sn">TikTok</span></div>
+        <div class="sb" onclick="social('snapchat')"><span class="si">&#x1F47B;</span><span class="sn">Snapchat</span></div>
+        <div class="sb" onclick="social('threads')"><span class="si">&#x1F9F5;</span><span class="sn">Threads</span></div>
+        <div class="sb" onclick="social('discord')"><span class="si">&#x1F3AE;</span><span class="sn">Discord</span></div>
+        <div class="sb" onclick="social('pinterest')"><span class="si">&#x1F4CC;</span><span class="sn">Pinterest</span></div>
+        <div class="sb" onclick="social('email_app')"><span class="si">&#x1F4E7;</span><span class="sn">Mail App</span></div>
+      </div>
+      <button class="copy-btn" onclick="copyMsg()">&#x1F4CB; Copy Full Message</button>
+    </div>
   </div>
+
+  <div class="sec-lbl">&#x1F4D6; Choose Your Scripture</div>
+  <div class="vshow" id="vshow"><div class="vshow-txt" id="vshowtxt"></div><div class="vshow-ref" id="vshowref"></div></div>
+  <div class="vcard">
+    <div class="srch"><span class="srch-ic">&#x1F50D;</span><input type="text" id="vsearch" placeholder="Search by verse or keyword..." oninput="filterV()"></div>
+    <div class="cats">
+      <button class="cat on" data-c="all" onclick="setCat(this,'all')">All</button>
+      <button class="cat" data-c="love" onclick="setCat(this,'love')">&#x2764; Love</button>
+      <button class="cat" data-c="strength" onclick="setCat(this,'strength')">&#x1F4AA; Strength</button>
+      <button class="cat" data-c="peace" onclick="setCat(this,'peace')">&#x1F54A; Peace</button>
+      <button class="cat" data-c="hope" onclick="setCat(this,'hope')">&#x2B50; Hope</button>
+      <button class="cat" data-c="gratitude" onclick="setCat(this,'gratitude')">&#x1F64F; Gratitude</button>
+      <button class="cat" data-c="healing" onclick="setCat(this,'healing')">&#x1F49A; Healing</button>
+      <button class="cat" data-c="new" onclick="setCat(this,'new')">&#x2728; New</button>
+      <button class="cat" data-c="wisdom" onclick="setCat(this,'wisdom')">&#x1F4DA; Wisdom</button>
+      <button class="cat" data-c="protection" onclick="setCat(this,'protection')">&#x1F6E1; Protection</button>
+    </div>
+    <div class="vlist" id="vlist"></div>
+  </div>
+
+  <div class="donate-bar">
+    <p><strong>Keep this mission going &#x1F64F;</strong><br>Tapsag is free. If it blessed you, consider supporting.</p>
+    <a href="https://cash.app/$tapsag1" target="_blank" rel="noopener" class="donate-link">
+      <svg viewBox="0 0 24 24"><path d="M20.15 4.58C18.42 2.84 16.06 2 13.5 2c-2.87 0-5.22.93-6.94 2.62C4.84 6.29 4 8.57 4 11.5c0 2.62.84 4.97 2.36 6.64C7.94 19.9 10.2 21 13 21h.5c2.56 0 4.96-.86 6.62-2.38C21.9 17.08 23 14.67 23 12v-.5c0-2.75-.96-5.12-2.85-6.92z"/></svg>
+      Donate &mdash; $tapsag1
+    </a>
+  </div>
+
+  <div class="succ" id="succ">
+    <div class="succ-ic">&#x271D;&#xFE0F;</div>
+    <div class="succ-h">Gift Sent!</div>
+    <div class="succ-p" id="succMsg">Your verse is on its way. May it bless their heart today.</div>
+    <button class="reset-btn" onclick="resetAll()">Send Another Gift</button>
+  </div>
+
+  <footer class="foot">
+    <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gl);margin-bottom:8px;">Tapsag</p>
+    <p>Share a Verse &bull; Spread the Word &bull; Bless Someone Today</p>
+    <p style="margin-top:10px;">
+      <a href="https://cash.app/$tapsag1" target="_blank">$tapsag1</a>
+      &nbsp;&bull;&nbsp;
+      <a href="mailto:tapsag1940@gmail.com">tapsag1940@gmail.com</a>
+    </p>
+    <div class="foot-links">
+      <a href="#privacy" onclick="showPrivacy()">Privacy Policy</a>
+      <span>&bull;</span>
+      <a href="#terms" onclick="showTerms()">Terms</a>
+      <span>&bull;</span>
+      <a href="mailto:tapsag1940@gmail.com">Contact</a>
+    </div>
+    <p style="margin-top:10px;font-size:11px;">&copy; 2026 Tapsag. All rights reserved.</p>
+  </footer>
+
+  <div class="modal-ov" id="privacyModal" onclick="closeModal('privacyModal')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('privacyModal')">&#x2715;</button>
+      <h2>Privacy Policy</h2>
+      <p><strong>Effective:</strong> June 2026</p>
+      <p>Tapsag collects only the email addresses you provide to deliver verse gifts. We do not sell, share, or store personal data beyond what is needed to send your message. Email delivery is powered by Omnisend. SMS payments are processed by Stripe. We do not have access to your payment information.</p>
+      <p>By using Tapsag you agree to receive the verse gift email you requested. Recipients can opt out at any time.</p>
+      <p>Questions: <a href="mailto:tapsag1940@gmail.com">tapsag1940@gmail.com</a></p>
+    </div>
+  </div>
+
+  <div class="modal-ov" id="termsModal" onclick="closeModal('termsModal')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('termsModal')">&#x2715;</button>
+      <h2>Terms of Use</h2>
+      <p><strong>Effective:</strong> June 2026</p>
+      <p>Tapsag is a faith-based verse gifting platform. By using this service you agree to use it for encouragement and inspiration only. You may not use Tapsag to send spam, harmful content, or unsolicited messages.</p>
+      <p>Email delivery is free. SMS delivery costs $3.99 per message, charged via Stripe. All payments are final.</p>
+      <p>Tapsag is provided as-is. We reserve the right to update these terms at any time.</p>
+      <p>Contact: <a href="mailto:tapsag1940@gmail.com">tapsag1940@gmail.com</a></p>
+    </div>
+  </div>
+</main>
+
+<div class="sticky">
+  <button class="send-btn" id="sendBtn" onclick="mainSend()">
+    Select a verse below &#x2193;
+  </button>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// ---------- Gift-view mode (recipient landed via /g/:giftId link) ----------
-(function checkGiftView(){
-  const match = window.location.pathname.match(/^\/g\/(.+)$/);
-  if(!match) return;
-  const giftId = decodeURIComponent(match[1]);
+const CFG = {
+  site: "https://tapsag.shop",
+};
 
-  document.getElementById('builderApp').style.display = 'none';
-  const giftView = document.getElementById('giftView');
-  giftView.style.display = 'block';
-  const loading = document.getElementById('giftViewLoading');
-  const errorEl = document.getElementById('giftViewError');
-  const content = document.getElementById('giftViewContent');
-
-  fetch('/.netlify/functions/get-gift?id=' + encodeURIComponent(giftId))
-    .then(res => { if(!res.ok) throw new Error('not found'); return res.json(); })
-    .then(gift => {
-      loading.style.display = 'none';
-      content.style.display = 'block';
-      document.getElementById('giftViewFrom').textContent = gift.sender_name
-        ? `From ${gift.sender_name}${gift.recipient_name ? ' to ' + gift.recipient_name : ''}`
-        : '';
-      document.getElementById('giftViewRef').textContent = (gift.verse_ref || '').toUpperCase();
-      document.getElementById('giftViewVerse').textContent = '"' + gift.verse_text + '"';
-      document.getElementById('giftViewNote').textContent = gift.personal_note || '';
-      if(gift.mediaType === 'video'){
-        const v = document.getElementById('giftViewVideo');
-        v.src = gift.mediaData;
-        v.style.display = 'block';
-      } else {
-        const img = document.getElementById('giftViewImg');
-        img.src = gift.mediaData;
-        img.style.display = 'block';
-      }
-    })
-    .catch(() => {
-      loading.style.display = 'none';
-      errorEl.style.display = 'block';
-    });
-})();
-
-// ---------- Verse data (KJV, public domain) ----------
-const VERSES = [
-  ["Strength","Philippians 4:13","I can do all things through Christ which strengtheneth me."],
-  ["Strength","Isaiah 41:10","Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee."],
-  ["Strength","Psalm 46:1","God is our refuge and strength, a very present help in trouble."],
-  ["Strength","Joshua 1:9","Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."],
-  ["Strength","2 Corinthians 12:9","My grace is sufficient for thee: for my strength is made perfect in weakness."],
-  ["Strength","Isaiah 40:31","They that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles."],
-  ["Strength","Psalm 18:32","It is God that girdeth me with strength, and maketh my way perfect."],
-  ["Strength","Deuteronomy 31:6","Be strong and of a good courage, fear not: for the LORD thy God, he it is that doth go with thee."],
-
-  ["Comfort","Psalm 34:18","The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."],
-  ["Comfort","Matthew 11:28","Come unto me, all ye that labour and are heavy laden, and I will give you rest."],
-  ["Comfort","Psalm 147:3","He healeth the broken in heart, and bindeth up their wounds."],
-  ["Comfort","2 Corinthians 1:3-4","The Father of mercies, and the God of all comfort; who comforteth us in all our tribulation."],
-  ["Comfort","Psalm 23:4","Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me."],
-  ["Comfort","John 14:27","Peace I leave with you, my peace I give unto you: let not your heart be troubled, neither let it be afraid."],
-  ["Comfort","Psalm 55:22","Cast thy burden upon the LORD, and he shall sustain thee."],
-  ["Comfort","Isaiah 66:13","As one whom his mother comforteth, so will I comfort you."],
-
-  ["Love","John 3:16","For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."],
-  ["Love","1 Corinthians 13:4-7","Charity suffereth long, and is kind; beareth all things, believeth all things, hopeth all things, endureth all things."],
-  ["Love","Romans 5:8","God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."],
-  ["Love","1 John 4:19","We love him, because he first loved us."],
-  ["Love","Song of Solomon 8:7","Many waters cannot quench love, neither can the floods drown it."],
-  ["Love","1 John 4:7","Beloved, let us love one another: for love is of God; and every one that loveth is born of God."],
-  ["Love","Zephaniah 3:17","He will rejoice over thee with joy; he will rest in his love, he will joy over thee with singing."],
-  ["Love","1 Corinthians 13:13","And now abideth faith, hope, charity, these three; but the greatest of these is charity."],
-
-  ["Faith","Hebrews 11:1","Now faith is the substance of things hoped for, the evidence of things not seen."],
-  ["Faith","Proverbs 3:5-6","Trust in the LORD with all thine heart; and lean not unto thine own understanding."],
-  ["Faith","Mark 11:24","What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them."],
-  ["Faith","Romans 10:17","So then faith cometh by hearing, and hearing by the word of God."],
-  ["Faith","2 Corinthians 5:7","For we walk by faith, not by sight."],
-  ["Faith","Matthew 17:20","If ye have faith as a grain of mustard seed... nothing shall be impossible unto you."],
-  ["Faith","James 1:6","Let him ask in faith, nothing wavering."],
-  ["Faith","Habakkuk 2:4","The just shall live by his faith."],
-
-  ["Hope","Jeremiah 29:11","I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."],
-  ["Hope","Romans 15:13","Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope."],
-  ["Hope","Romans 8:28","We know that all things work together for good to them that love God."],
-  ["Hope","Psalm 42:11","Why art thou cast down, O my soul? hope thou in God: for I shall yet praise him."],
-  ["Hope","Lamentations 3:22-23","His compassions fail not. They are new every morning: great is thy faithfulness."],
-  ["Hope","Romans 12:12","Rejoicing in hope; patient in tribulation; continuing instant in prayer."],
-  ["Hope","Psalm 39:7","And now, Lord, what wait I for? my hope is in thee."],
-  ["Hope","Titus 2:13","Looking for that blessed hope, and the glorious appearing of the great God and our Saviour."],
-
-  ["Peace","Philippians 4:6-7","Be careful for nothing; and the peace of God, which passeth all understanding, shall keep your hearts and minds."],
-  ["Peace","Isaiah 26:3","Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee."],
-  ["Peace","John 16:33","In me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world."],
-  ["Peace","Numbers 6:24-26","The LORD bless thee, and keep thee: the LORD lift up his countenance upon thee, and give thee peace."],
-  ["Peace","Colossians 3:15","Let the peace of God rule in your hearts, to the which also ye are called in one body."],
-  ["Peace","Psalm 29:11","The LORD will give strength unto his people; the LORD will bless his people with peace."],
-  ["Peace","2 Thessalonians 3:16","Now the Lord of peace himself give you peace always by all means."],
-  ["Peace","Psalm 4:8","I will both lay me down in peace, and sleep: for thou, LORD, only makest me dwell in safety."],
-
-  ["Guidance","Proverbs 16:9","A man's heart deviseth his way: but the LORD directeth his steps."],
-  ["Guidance","Psalm 32:8","I will instruct thee and teach thee in the way which thou shalt go: I will guide thee with mine eye."],
-  ["Guidance","Psalm 119:105","Thy word is a lamp unto my feet, and a light unto my path."],
-  ["Guidance","Isaiah 30:21","Thine ears shall hear a word behind thee, saying, This is the way, walk ye in it."],
-  ["Guidance","James 1:5","If any of you lack wisdom, let him ask of God, that giveth to all men liberally."],
-  ["Guidance","Psalm 25:4-5","Shew me thy ways, O LORD; teach me thy paths. Lead me in thy truth, and teach me."],
-  ["Guidance","John 16:13","When he, the Spirit of truth, is come, he will guide you into all truth."],
-  ["Guidance","Proverbs 4:11","I have taught thee in the way of wisdom; I have led thee in right paths."],
-
-  ["Gratitude","1 Thessalonians 5:18","In every thing give thanks: for this is the will of God in Christ Jesus concerning you."],
-  ["Gratitude","Psalm 100:4","Enter into his gates with thanksgiving, and into his courts with praise: be thankful unto him."],
-  ["Gratitude","Psalm 107:1","O give thanks unto the LORD, for he is good: for his mercy endureth for ever."],
-  ["Gratitude","Colossians 3:17","Whatsoever ye do in word or deed, do all in the name of the Lord Jesus, giving thanks to God."],
-  ["Gratitude","Psalm 118:24","This is the day which the LORD hath made; we will rejoice and be glad in it."],
-  ["Gratitude","Psalm 9:1","I will praise thee, O LORD, with my whole heart; I will shew forth all thy marvellous works."],
-  ["Gratitude","Ephesians 5:20","Giving thanks always for all things unto God and the Father in the name of our Lord Jesus Christ."],
-  ["Gratitude","James 1:17","Every good gift and every perfect gift is from above, and cometh down from the Father of lights."],
-
-  ["Healing","Jeremiah 17:14","Heal me, O LORD, and I shall be healed; save me, and I shall be saved: for thou art my praise."],
-  ["Healing","Psalm 30:2","O LORD my God, I cried unto thee, and thou hast healed me."],
-  ["Healing","Exodus 15:26","I am the LORD that healeth thee."],
-  ["Healing","Isaiah 53:5","With his stripes we are healed."],
-  ["Healing","Psalm 103:2-3","Bless the LORD, O my soul... who forgiveth all thine iniquities; who healeth all thy diseases."],
-  ["Healing","3 John 1:2","Beloved, I wish above all things that thou mayest prosper and be in health, even as thy soul prospereth."],
-  ["Healing","Malachi 4:2","Unto you that fear my name shall the Sun of righteousness arise with healing in his wings."],
-  ["Healing","James 5:15","The prayer of faith shall save the sick, and the Lord shall raise him up."],
-
-  ["Purpose","Ephesians 2:10","We are his workmanship, created in Christ Jesus unto good works, which God hath before ordained."],
-  ["Purpose","Proverbs 19:21","There are many devices in a man's heart; nevertheless the counsel of the LORD, that shall stand."],
-  ["Purpose","Philippians 1:6","He which hath begun a good work in you will perform it until the day of Jesus Christ."],
-  ["Purpose","Esther 4:14","Who knoweth whether thou art come to the kingdom for such a time as this?"],
-  ["Purpose","Psalm 138:8","The LORD will perfect that which concerneth me: thy mercy, O LORD, endureth for ever."],
-  ["Purpose","Jeremiah 1:5","Before I formed thee in the belly I knew thee... I sanctified thee."],
-  ["Purpose","1 Peter 2:9","Ye are a chosen generation, a royal priesthood, an holy nation, a peculiar people."],
-  ["Purpose","Colossians 3:23","Whatsoever ye do, do it heartily, as to the Lord, and not unto men."]
+const V = [
+  {r:"John 3:16",t:"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",cat:"love"},
+  {r:"1 Cor 13:4-7",t:"Love is patient, love is kind. It does not envy, it does not boast, it is not proud. It always protects, always trusts, always hopes, always perseveres.",cat:"love"},
+  {r:"Romans 8:38-39",t:"Nothing in all creation will be able to separate us from the love of God that is in Christ Jesus our Lord.",cat:"love"},
+  {r:"Jeremiah 31:3",t:"I have loved you with an everlasting love; I have drawn you with unfailing kindness.",cat:"love"},
+  {r:"1 John 4:19",t:"We love because he first loved us.",cat:"love"},
+  {r:"Zephaniah 3:17",t:"The Lord your God is with you, the Mighty Warrior who saves. He will rejoice over you with singing.",cat:"love"},
+  {r:"John 15:13",t:"Greater love has no one than this: to lay down one's life for one's friends.",cat:"love"},
+  {r:"Romans 5:8",t:"While we were still sinners, Christ died for us.",cat:"love"},
+  {r:"Philippians 4:13",t:"I can do all this through him who gives me strength.",cat:"strength"},
+  {r:"Isaiah 40:31",t:"Those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary.",cat:"strength"},
+  {r:"Joshua 1:9",t:"Be strong and courageous. Do not be afraid; the Lord your God will be with you wherever you go.",cat:"strength"},
+  {r:"Psalm 46:1",t:"God is our refuge and strength, an ever-present help in trouble.",cat:"strength"},
+  {r:"Isaiah 41:10",t:"Do not fear, for I am with you. I will strengthen you and help you.",cat:"strength"},
+  {r:"2 Timothy 1:7",t:"The Spirit God gave us does not make us timid, but gives us power, love and self-discipline.",cat:"strength"},
+  {r:"Ephesians 6:10",t:"Be strong in the Lord and in his mighty power.",cat:"strength"},
+  {r:"Psalm 28:7",t:"The Lord is my strength and my shield; my heart trusts in him, and he helps me.",cat:"strength"},
+  {r:"John 14:27",t:"Peace I leave with you; my peace I give you. Do not let your hearts be troubled and do not be afraid.",cat:"peace"},
+  {r:"Philippians 4:6-7",t:"Do not be anxious about anything, but by prayer present your requests to God. And the peace of God will guard your hearts.",cat:"peace"},
+  {r:"Isaiah 26:3",t:"You will keep in perfect peace those whose minds are steadfast, because they trust in you.",cat:"peace"},
+  {r:"Psalm 23:1-3",t:"The Lord is my shepherd, I lack nothing. He leads me beside quiet waters, he refreshes my soul.",cat:"peace"},
+  {r:"Matthew 11:28",t:"Come to me, all you who are weary and burdened, and I will give you rest.",cat:"peace"},
+  {r:"Romans 15:13",t:"May the God of hope fill you with all joy and peace as you trust in him.",cat:"peace"},
+  {r:"Colossians 3:15",t:"Let the peace of Christ rule in your hearts. And be thankful.",cat:"peace"},
+  {r:"Jeremiah 29:11",t:"For I know the plans I have for you, plans to prosper you and not to harm you, plans to give you hope and a future.",cat:"hope"},
+  {r:"Romans 8:28",t:"In all things God works for the good of those who love him.",cat:"hope"},
+  {r:"Hebrews 11:1",t:"Faith is confidence in what we hope for and assurance about what we do not see.",cat:"hope"},
+  {r:"Lamentations 3:22-23",t:"The Lord's compassions never fail. They are new every morning; great is your faithfulness.",cat:"hope"},
+  {r:"Psalm 31:24",t:"Be strong and take heart, all you who hope in the Lord.",cat:"hope"},
+  {r:"Proverbs 13:12",t:"Hope deferred makes the heart sick, but a longing fulfilled is a tree of life.",cat:"hope"},
+  {r:"Psalm 118:24",t:"The Lord has done it this very day; let us rejoice today and be glad.",cat:"gratitude"},
+  {r:"Numbers 6:24-26",t:"The Lord bless you and keep you; the Lord make his face shine on you and be gracious to you.",cat:"gratitude"},
+  {r:"1 Thess 5:16-18",t:"Rejoice always, pray continually, give thanks in all circumstances.",cat:"gratitude"},
+  {r:"James 1:17",t:"Every good and perfect gift is from above, coming down from the Father of the heavenly lights.",cat:"gratitude"},
+  {r:"Psalm 107:1",t:"Give thanks to the Lord, for he is good; his love endures forever.",cat:"gratitude"},
+  {r:"Psalm 147:3",t:"He heals the brokenhearted and binds up their wounds.",cat:"healing"},
+  {r:"Isaiah 53:5",t:"He was pierced for our transgressions; by his wounds we are healed.",cat:"healing"},
+  {r:"Jeremiah 30:17",t:"I will restore you to health and heal your wounds, declares the Lord.",cat:"healing"},
+  {r:"3 John 1:2",t:"I pray that you may enjoy good health and that all may go well with you.",cat:"healing"},
+  {r:"Psalm 30:2",t:"Lord my God, I called to you for help, and you healed me.",cat:"healing"},
+  {r:"Proverbs 17:22",t:"A cheerful heart is good medicine, but a crushed spirit dries up the bones.",cat:"healing"},
+  {r:"Revelation 21:4",t:"He will wipe every tear from their eyes. There will be no more death or mourning or crying or pain.",cat:"healing"},
+  {r:"2 Cor 5:17",t:"If anyone is in Christ, the new creation has come: The old has gone, the new is here!",cat:"new"},
+  {r:"Isaiah 43:19",t:"I am doing a new thing! I am making a way in the wilderness and streams in the wasteland.",cat:"new"},
+  {r:"Philippians 1:6",t:"He who began a good work in you will carry it on to completion.",cat:"new"},
+  {r:"Ezekiel 36:26",t:"I will give you a new heart and put a new spirit in you.",cat:"new"},
+  {r:"Revelation 21:5",t:"I am making everything new!",cat:"new"},
+  {r:"James 1:5",t:"If any of you lacks wisdom, ask God, who gives generously to all without finding fault.",cat:"wisdom"},
+  {r:"Proverbs 3:5-6",t:"Trust in the Lord with all your heart; in all your ways submit to him, and he will make your paths straight.",cat:"wisdom"},
+  {r:"Psalm 119:105",t:"Your word is a lamp for my feet, a light on my path.",cat:"wisdom"},
+  {r:"Proverbs 9:10",t:"The fear of the Lord is the beginning of wisdom.",cat:"wisdom"},
+  {r:"Proverbs 4:7",t:"The beginning of wisdom is this: Get wisdom, and whatever you get, get insight.",cat:"wisdom"},
+  {r:"Psalm 91:1-2",t:"Whoever dwells in the shelter of the Most High will rest in the shadow of the Almighty. He is my refuge and my fortress.",cat:"protection"},
+  {r:"Psalm 121:7-8",t:"The Lord will keep you from all harm; he will watch over your life both now and forevermore.",cat:"protection"},
+  {r:"2 Thess 3:3",t:"The Lord is faithful, and he will strengthen you and protect you from the evil one.",cat:"protection"},
+  {r:"Isaiah 54:17",t:"No weapon forged against you will prevail. This is the heritage of the servants of the Lord.",cat:"protection"},
+  {r:"Proverbs 18:10",t:"The name of the Lord is a fortified tower; the righteous run to it and are safe.",cat:"protection"},
+  {r:"Deuteronomy 31:6",t:"Be strong and courageous. The Lord your God goes with you; he will never leave you nor forsake you.",cat:"protection"},
+  {r:"Psalm 34:7",t:"The angel of the Lord encamps around those who fear him, and he delivers them.",cat:"protection"},
 ];
 
-const cats = ["All", ...Array.from(new Set(VERSES.map(v=>v[0])))];
-let activeCat = "All";
-let activeSearch = "";
-let selected = null; // {ref, text}
-let mediaType = null; // 'photo' | 'video'
-let photoImg = null;
+let sel=null, cat="all", delMode="email", mediaState=null;
+let mediaRecorder=null, recChunks=[], recTick=null, camStream=null;
 
-const catsEl = document.getElementById('cats');
-const listEl = document.getElementById('verseList');
-const countEl = document.getElementById('verseCount');
-const stripEl = document.getElementById('selectedStrip');
-const stripLabel = document.getElementById('selectedLabel');
-const buildBtn = document.getElementById('buildBtn');
+document.addEventListener("DOMContentLoaded", () => { renderV(V); });
 
-function renderCats(){
-  catsEl.innerHTML = cats.map(c => `<div class="cat-chip ${c===activeCat?'active':''}" data-cat="${c}">${c}</div>`).join('');
-  catsEl.querySelectorAll('.cat-chip').forEach(el=>{
-    el.addEventListener('click', ()=>{ activeCat = el.dataset.cat; renderCats(); renderList(); });
-  });
+function setFeat(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ const el=document.getElementById("heroFeat"); el.style.backgroundImage="url("+e.target.result+")"; el.classList.add("show"); };
+  r.readAsDataURL(f); inp.value="";
 }
 
-function renderList(){
-  const q = activeSearch.trim().toLowerCase();
-  const filtered = VERSES.filter(([cat,ref,text])=>{
-    const catMatch = activeCat === "All" || cat === activeCat;
-    const qMatch = !q || ref.toLowerCase().includes(q) || text.toLowerCase().includes(q) || cat.toLowerCase().includes(q);
-    return catMatch && qMatch;
-  });
-  countEl.textContent = `${filtered.length} verse${filtered.length===1?'':'s'}`;
-  listEl.innerHTML = filtered.map(([cat,ref,text])=>{
-    const isSel = selected && selected.ref === ref;
-    return `<div class="verse-card ${isSel?'selected':''}" data-ref="${ref}">
-      <div class="verse-ref">${ref} · ${cat}</div>
-      <div class="verse-text">"${text}"</div>
-    </div>`;
-  }).join('') || `<div style="color:#545c70;font-size:12px;padding:14px 2px;">No verses match that search.</div>`;
+function isMobile(){ return /Android|iPhone|iPad/i.test(navigator.userAgent); }
 
-  listEl.querySelectorAll('.verse-card').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const ref = el.dataset.ref;
-      const found = VERSES.find(v=>v[1]===ref);
-      selected = { cat: found[0], ref: found[1], text: found[2] };
-      renderList();
-      stripEl.classList.add('show');
-      stripLabel.textContent = `${selected.ref} selected`;
-      updateBuildState();
-      if(mediaType==='photo' && photoImg) drawCard();
-      if(mediaType==='video') updateVideoCaption();
-    });
-  });
+function handleVideoTap(e){
+  if(!isMobile()){ e.preventDefault(); startRec(); }
 }
 
-document.getElementById('search').addEventListener('input', e=>{
-  activeSearch = e.target.value; renderList();
-});
-
-renderCats(); renderList();
-
-// ---------- Capture ----------
-const captureBox = document.getElementById('captureBox');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const videoPreview = document.getElementById('videoPreview');
-const videoCaption = document.getElementById('videoCaption');
-const vcapRef = document.getElementById('vcapRef');
-const vcapTxt = document.getElementById('vcapTxt');
-
-document.getElementById('photoInput').addEventListener('change', e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const img = new Image();
-  img.onload = ()=>{
-    photoImg = img;
-    mediaType = 'photo';
-    captureBox.classList.remove('has-video');
-    captureBox.classList.add('has-media');
-    drawCard();
-    updateBuildState();
+function onPhoto(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ mediaState={type:"photo",src:e.target.result}; renderMedia(); };
+  r.readAsDataURL(f); inp.value="";
+}
+function onVideo(inp){
+  const f=inp.files[0]; if(!f) return;
+  const tmp=URL.createObjectURL(f);
+  const v=document.createElement("video"); v.src=tmp;
+  v.onloadedmetadata=()=>{
+    if(v.duration>31){ toast("Video must be 30 sec or less"); URL.revokeObjectURL(tmp); return; }
+    mediaState={type:"video",src:tmp,file:f}; renderMedia();
   };
-  img.src = URL.createObjectURL(file);
-});
-
-document.getElementById('videoInput').addEventListener('change', e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  mediaType = 'video';
-  captureBox.classList.remove('has-media');
-  captureBox.classList.add('has-video');
-  videoPreview.src = URL.createObjectURL(file);
-  updateVideoCaption();
-  updateBuildState();
-});
-
-function wrapText(context, text, x, y, maxWidth, lineHeight){
-  const words = text.split(' ');
-  let line = '';
-  let lines = [];
-  for(let n=0;n<words.length;n++){
-    const test = line + words[n] + ' ';
-    if(context.measureText(test).width > maxWidth && n > 0){
-      lines.push(line); line = words[n] + ' ';
-    } else { line = test; }
-  }
-  lines.push(line);
-  lines.forEach((l,i)=> context.fillText(l.trim(), x, y + i*lineHeight));
-  return lines.length;
+  inp.value="";
+}
+function handleUrl(val){
+  if(!val) return;
+  const yt=val.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  if(yt){ mediaState={type:"yt",id:yt[1]}; }
+  else if(/\.(jpg|jpeg|png|gif|webp)/i.test(val)){ mediaState={type:"photo",src:val}; }
+  else{ mediaState={type:"video",src:val}; }
+  renderMedia();
+}
+function toggleUrl(){
+  const r=document.getElementById("murlRow");
+  r.style.display=r.style.display==="none"?"block":"none";
+  if(r.style.display==="block") document.getElementById("murlIn").focus();
+}
+function renderMedia(){
+  const view=document.getElementById("mview");
+  const empty=document.getElementById("mempty");
+  const photo=document.getElementById("outPhoto");
+  const vid=document.getElementById("outVideo");
+  const yt=document.getElementById("outYT");
+  empty.style.display="none"; photo.style.display="none"; vid.style.display="none"; yt.style.display="none";
+  view.classList.add("filled");
+  if(!mediaState){ empty.style.display="flex"; view.classList.remove("filled"); return; }
+  if(mediaState.type==="photo"){ photo.src=mediaState.src; photo.style.display="block"; }
+  else if(mediaState.type==="video"){ vid.src=mediaState.src; vid.style.display="block"; }
+  else if(mediaState.type==="yt"){ yt.src="https://www.youtube.com/embed/"+mediaState.id; yt.style.display="block"; }
+}
+function clearMedia(){
+  mediaState=null;
+  document.getElementById("outVideo").src="";
+  document.getElementById("outYT").src="";
+  document.getElementById("murlRow").style.display="none";
+  document.getElementById("murlIn").value="";
+  renderMedia();
 }
 
-function drawCard(){
-  if(!photoImg) return;
-  const W = 900, H = 1125; // 4:5 keepsake ratio
-  canvas.width = W; canvas.height = H;
-
-  // cover-fit image
-  const ir = photoImg.width/photoImg.height, cr = W/H;
-  let sw, sh, sx, sy;
-  if(ir > cr){ sh = photoImg.height; sw = sh*cr; sy = 0; sx = (photoImg.width-sw)/2; }
-  else { sw = photoImg.width; sh = sw/cr; sx = 0; sy = (photoImg.height-sh)/2; }
-  ctx.drawImage(photoImg, sx, sy, sw, sh, 0, 0, W, H);
-
-  // gradient scrim bottom
-  const grad = ctx.createLinearGradient(0, H*0.45, 0, H);
-  grad.addColorStop(0, 'rgba(10,13,22,0)');
-  grad.addColorStop(1, 'rgba(10,13,22,0.94)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, H*0.45, W, H*0.55);
-
-  if(selected){
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = '#e8b84b';
-    ctx.font = '700 22px Manrope, sans-serif';
-    ctx.fillText(selected.ref.toUpperCase(), 46, H-230);
-
-    ctx.fillStyle = '#f3f1ea';
-    ctx.font = 'italic 500 40px Fraunces, serif';
-    const lines = wrapText(ctx, '"' + selected.text + '"', 46, H-175, W-92, 50);
-
-    const msg = document.getElementById('message').value.trim();
-    if(msg){
-      ctx.font = '600 22px Manrope, sans-serif';
-      ctx.fillStyle = '#c7cbd6';
-      const msgY = H-175 + lines*50 + 44;
-      wrapText(ctx, '— ' + msg, 46, msgY, W-92, 30);
-    }
-  }
-
-  // brand mark
-  ctx.fillStyle = '#e8b84b';
-  ctx.font = '800 20px Manrope, sans-serif';
-  ctx.fillText('TAPSAG', 46, 60);
+async function startRec(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    camStream=stream;
+    const feed=document.getElementById("outCam"); feed.srcObject=stream; feed.style.display="block";
+    document.getElementById("mempty").style.display="none";
+    document.getElementById("mview").classList.add("filled");
+    document.getElementById("recOv").style.display="flex";
+    document.getElementById("mbar").style.display="block";
+    recChunks=[]; mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>{ if(e.data.size>0) recChunks.push(e.data); };
+    mediaRecorder.onstop=()=>{
+      const blob=new Blob(recChunks,{type:"video/webm"});
+      const url=URL.createObjectURL(blob);
+      mediaState={type:"video",src:url,blob:blob};
+      feed.style.display="none"; feed.srcObject=null;
+      renderMedia();
+      document.getElementById("mbar").style.display="none";
+    };
+    mediaRecorder.start();
+    const fill=document.getElementById("mbarFill");
+    fill.style.transition="none"; fill.style.width="0%";
+    setTimeout(()=>{ fill.style.transition="width 30s linear"; fill.style.width="100%"; },50);
+    let s=30; document.getElementById("rtime").textContent="0:30";
+    recTick=setInterval(()=>{ s--; document.getElementById("rtime").textContent="0:"+(s<10?"0"+s:s); if(s<=0){ clearInterval(recTick); stopRec(); } },1000);
+  }catch(e){ toast("Camera denied - use Gallery or paste a URL"); }
+}
+function stopRec(){
+  clearInterval(recTick);
+  if(mediaRecorder&&mediaRecorder.state!=="inactive") mediaRecorder.stop();
+  if(camStream) camStream.getTracks().forEach(t=>t.stop());
+  document.getElementById("recOv").style.display="none";
+  document.getElementById("outCam").style.display="none";
 }
 
-function updateVideoCaption(){
-  if(!selected) return;
-  vcapRef.textContent = selected.ref;
-  vcapTxt.textContent = '"' + selected.text + '"';
+function renderV(list){
+  const el=document.getElementById("vlist");
+  el.innerHTML=list.length
+    ?list.map((v,i)=>"<div class=\"vc"+(sel&&sel.r===v.r?" sel":"")+"\" onclick=\"pickV("+i+",this)\"><div class=\"vref\">"+v.r+"</div><div class=\"vtxt\">"+v.t+"</div></div>").join("")
+    :"<p style=\"color:var(--t3);text-align:center;padding:18px;font-size:14px;\">No verses found.</p>";
+}
+function filterV(){
+  const q=document.getElementById("vsearch").value.toLowerCase();
+  let list=V;
+  if(cat!=="all") list=list.filter(v=>v.cat===cat);
+  if(q) list=list.filter(v=>v.r.toLowerCase().includes(q)||v.t.toLowerCase().includes(q));
+  renderV(list);
+}
+function setCat(el,c){ cat=c; document.querySelectorAll(".cat").forEach(b=>b.classList.remove("on")); el.classList.add("on"); filterV(); }
+function pickV(i,el){
+  const q=document.getElementById("vsearch").value.toLowerCase();
+  let list=V;
+  if(cat!=="all") list=list.filter(v=>v.cat===cat);
+  if(q) list=list.filter(v=>v.r.toLowerCase().includes(q)||v.t.toLowerCase().includes(q));
+  sel=list[i];
+  document.querySelectorAll(".vc").forEach(c=>c.classList.remove("sel")); el.classList.add("sel");
+  document.getElementById("vshowtxt").textContent="\""+sel.t+"\"";
+  document.getElementById("vshowref").textContent="\u2014 "+sel.r;
+  document.getElementById("vshow").classList.add("on");
+  updateBtn();
+  setTimeout(()=>document.getElementById("vshow").scrollIntoView({behavior:"smooth",block:"nearest"}),80);
 }
 
-function updateBuildState(){
-  const ready = selected && mediaType;
-  buildBtn.disabled = !ready;
-  buildBtn.textContent = ready ? 'Your gift is ready — download or send below' : 'Choose a verse + photo to build your gift';
+function setDel(el,mode){
+  delMode=mode;
+  document.querySelectorAll(".dtab").forEach(b=>b.classList.remove("on")); el.classList.add("on");
+  document.querySelectorAll(".del-panel").forEach(p=>p.classList.remove("on"));
+  document.getElementById("pan-"+mode).classList.add("on");
+  updateBtn();
+}
+function updateBtn(){
+  const btn=document.getElementById("sendBtn");
+  if(!sel){ btn.textContent="Select a verse below \u2193"; btn.classList.remove("stripe-mode"); return; }
+  if(delMode==="sms"){ btn.textContent="Pay $3.99 & Send SMS"; btn.classList.add("stripe-mode"); }
+  else if(delMode==="social"){ btn.textContent="Copy & Share to Social DM"; btn.classList.remove("stripe-mode"); }
+  else{ btn.textContent="Send Verse Gift Free"; btn.classList.remove("stripe-mode"); }
 }
 
-document.getElementById('message').addEventListener('input', ()=>{
-  if(mediaType==='photo' && photoImg) drawCard();
-});
-
-buildBtn.addEventListener('click', ()=>{
-  if(mediaType!=='photo') return;
-  const link = document.createElement('a');
-  link.download = 'tapsag-scripture-gift.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-});
-
-// ---------- Share ----------
-function shareText(){
-  if(!selected) return "Sent with love from Tapsag — turn a moment into a word for someone's heart.";
-  const msg = document.getElementById('message').value.trim();
-  let t = `"${selected.text}" — ${selected.ref}`;
-  if(msg) t += `\\n\\n${msg}`;
-  t += `\\n\\nSent with Tapsag · tapsag.shop`;
-  return t;
+function mainSend(){
+  if(!sel){ toast("Select a scripture first"); document.getElementById("vsearch").scrollIntoView({behavior:"smooth"}); return; }
+  if(delMode==="sms") sendSMS();
+  else if(delMode==="social") copyMsg();
+  else sendEmail();
+}
+function buildMsg(){
+  const fn=document.getElementById("fromName").value||document.getElementById("fromNameS").value||"Someone special";
+  const tn=document.getElementById("toName").value||document.getElementById("toNameS").value||"You";
+  const note=document.getElementById("msgField").value;
+  let m="A Word of Inspiration for "+tn+"\n\n\""+sel.t+"\"\n\u2014 "+sel.r;
+  if(note) m+="\n\n"+note;
+  m+="\n\nWith love, "+fn+"\nSent via Tapsag.shop";
+  return m;
 }
 
-function giftFields(){
-  return {
-    sender_name: window.__giftSender || '',
-    recipient_name: window.__giftRecipient || '',
-    recipient_contact: window.__giftContact || '',
-    personal_note: document.getElementById('message').value.trim(),
-    verse_text: selected ? selected.text : '',
-    verse_ref: selected ? selected.ref : ''
-  };
-}
-
-function collectRecipientInfo(kind){
-  // kind = 'email' or 'text' — asks inline, only once per session, only when needed
-  if(!window.__giftSender) window.__giftSender = prompt('Your name?') || '';
-  if(!window.__giftRecipient) window.__giftRecipient = prompt("Their name?") || '';
-  const label = kind === 'email' ? 'Their email address?' : 'Their phone number?';
-  window.__giftContact = prompt(label) || '';
-  return !!(window.__giftSender && window.__giftRecipient && window.__giftContact);
-}
-
-// Turn the current photo/video into base64 so it can be stored server-side.
-// Photo: use the already-composited canvas (verse + message baked in).
-// Video: read the raw file the user picked.
+// ---------- Backend integration: converts current media to base64 and saves
+// the gift (photo/video + verse + message) via /.netlify/functions/save-gift,
+// returning a gift_id used by both the email and SMS/Stripe delivery paths so
+// the recipient link (/g/:giftId) and the sender's success page both work.
 function getMediaPayload(){
   return new Promise((resolve, reject)=>{
-    if(mediaType === 'photo' && photoImg){
-      resolve({ mediaType:'photo', mediaData: canvas.toDataURL('image/jpeg', 0.85) });
-    } else if(mediaType === 'video'){
-      const file = document.getElementById('videoInput').files[0];
-      if(!file){ reject(new Error('No video file selected')); return; }
-      const reader = new FileReader();
-      reader.onload = () => resolve({ mediaType:'video', mediaData: reader.result });
-      reader.onerror = () => reject(new Error('Could not read video file'));
-      reader.readAsDataURL(file);
+    if(!mediaState){ reject(new Error("no media")); return; }
+    if(mediaState.type==="photo"){
+      resolve({ mediaType:"photo", mediaData: mediaState.src });
+    } else if(mediaState.type==="video"){
+      if(mediaState.blob){
+        const reader=new FileReader();
+        reader.onload=()=>resolve({ mediaType:"video", mediaData: reader.result });
+        reader.onerror=()=>reject(new Error("Could not read recorded video"));
+        reader.readAsDataURL(mediaState.blob);
+      } else if(mediaState.file){
+        const reader=new FileReader();
+        reader.onload=()=>resolve({ mediaType:"video", mediaData: reader.result });
+        reader.onerror=()=>reject(new Error("Could not read video file"));
+        reader.readAsDataURL(mediaState.file);
+      } else {
+        reject(new Error("Video URL links can't be saved as a gift yet — use Photo or upload a video file"));
+      }
     } else {
-      reject(new Error('Choose a photo or video first'));
+      reject(new Error("YouTube links can't be saved as a gift yet — use Photo or Video"));
     }
   });
 }
-
-// Saves the gift's media + verse to the server FIRST so both the email path
-// and the paid-text path can reference the same gift_id afterward.
-async function saveGiftAndGetId(){
+async function saveGiftAndGetId(fromName, toName, personalNote){
   const media = await getMediaPayload();
-  const f = giftFields();
-  const res = await fetch('/.netlify/functions/save-gift', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ ...media, ...f })
+  const res = await fetch("/.netlify/functions/save-gift", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      ...media,
+      verse_text: sel.t,
+      verse_ref: sel.r,
+      sender_name: fromName,
+      recipient_name: toName,
+      personal_note: personalNote
+    })
   });
   const data = await res.json();
-  if(!res.ok) throw new Error(data.error || 'Could not save gift media');
+  if(!res.ok) throw new Error(data.error || "Could not save gift media");
   return data.giftId;
 }
 
-document.getElementById('shareEmail').addEventListener('click', async e=>{
-  e.preventDefault();
-  if(!selected){ alert('Choose a verse first.'); return; }
-  if(!mediaType){ alert('Add a photo or video first.'); return; }
-  if(!collectRecipientInfo('email')) return;
-  const f = giftFields();
-  if(!f.recipient_contact.includes('@')){ alert("That doesn't look like an email address."); return; }
-  const btn = e.currentTarget;
-  btn.style.opacity = '.5';
+async function sendEmail(){
+  const fe=document.getElementById("fromEmail").value.trim();
+  const te=document.getElementById("toEmail").value.trim();
+  const fn=document.getElementById("fromName").value.trim()||"A friend";
+  const tn=document.getElementById("toName").value.trim()||"You";
+  if(!fe||!te){ toast("Enter both email addresses"); return; }
+  if(!validEmail(fe)||!validEmail(te)){ toast("Check email format"); return; }
+  const btn=document.getElementById("sendBtn");
+  btn.innerHTML="<span class=\"spin\"></span>\u00a0Sending\u2026"; btn.disabled=true;
   try{
-    const giftId = await saveGiftAndGetId();
-    const res = await fetch('/.netlify/functions/send-gift', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...f, gift_id: giftId })
+    let giftId=null;
+    if(mediaState){
+      try{ giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value); }
+      catch(err){ toast(err.message); }
+    }
+    const res=await fetch("/.netlify/functions/send-gift",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        sender_name: fn,
+        recipient_name: tn,
+        recipient_contact: te,
+        personal_note: document.getElementById("msgField").value,
+        verse_text: sel.t,
+        verse_ref: sel.r,
+        gift_id: giftId
+      }),
     });
-    const data = await res.json();
-    if(!res.ok) throw new Error(data.error || 'Send failed');
-    window.location.href = '/success.html?gift_id=' + encodeURIComponent(giftId);
-  }catch(err){
-    alert('Could not send: ' + err.message);
-    btn.style.opacity = '1';
-  }
-});
-document.getElementById('shareText').addEventListener('click', async e=>{
-  e.preventDefault();
-  if(!selected){ alert('Choose a verse first.'); return; }
-  if(!mediaType){ alert('Add a photo or video first.'); return; }
-  if(!collectRecipientInfo('text')) return;
-  const f = giftFields();
-  if(f.recipient_contact.includes('@')){ alert('That looks like an email — text delivery needs a phone number.'); return; }
-  const btn = e.currentTarget;
-  btn.style.opacity = '.5';
+    if(res.ok){
+      if(giftId) window.location.href = "/success.html?gift_id="+encodeURIComponent(giftId);
+      else showSucc("email",te);
+    }
+    else{ const e=await res.json().catch(()=>({})); toast(e.error||"Send failed - try again"); updateBtn(); btn.disabled=false; }
+  }catch{ toast("Network error - check connection"); updateBtn(); btn.disabled=false; }
+}
+
+async function sendSMS(){
+  const ph=document.getElementById("toPhone").value.trim();
+  const fn=document.getElementById("fromNameS").value.trim()||"A friend";
+  const tn=document.getElementById("toNameS").value.trim()||"You";
+  if(!ph){ toast("Enter recipient phone number"); return; }
+  const btn=document.getElementById("sendBtn");
+  btn.innerHTML="<span class=\"spin\"></span>\u00a0Starting checkout\u2026"; btn.disabled=true;
   try{
-    const giftId = await saveGiftAndGetId();
-    const res = await fetch('/.netlify/functions/create-checkout-session', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...f, gift_id: giftId })
+    let giftId=null;
+    if(mediaState){
+      try{ giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value); }
+      catch(err){ toast(err.message); btn.disabled=false; updateBtn(); return; }
+    } else {
+      toast("Add a photo or video first"); btn.disabled=false; updateBtn(); return;
+    }
+    const res=await fetch("/.netlify/functions/create-checkout-session",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        sender_name: fn,
+        recipient_name: tn,
+        recipient_contact: ph,
+        personal_note: document.getElementById("msgField").value,
+        verse_text: sel.t,
+        verse_ref: sel.r,
+        gift_id: giftId
+      }),
     });
-    const data = await res.json();
-    if(!res.ok) throw new Error(data.error || 'Checkout failed');
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error || "Checkout failed");
     window.location.href = data.url;
-  }catch(err){
-    alert('Could not start checkout: ' + err.message);
-    btn.style.opacity = '1';
-  }
-});
-document.getElementById('shareFB').addEventListener('click', e=>{
-  e.preventDefault();
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText())}`, '_blank');
-});
-document.getElementById('shareFB2').addEventListener('click', e=>{
-  e.preventDefault();
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://tapsag.shop')}&quote=${encodeURIComponent(shareText())}`, '_blank');
-});
-document.getElementById('shareMore').addEventListener('click', async e=>{
-  e.preventDefault();
-  if(navigator.share){
+  }catch(err){ toast(err.message||"Could not start checkout"); btn.disabled=false; updateBtn(); }
+}
+
+async function social(plat){
+  if(!sel){ toast("Select a verse first"); return; }
+  let txt=buildMsg();
+  if(mediaState){
     try{
-      if(mediaType==='photo' && photoImg){
-        canvas.toBlob(async (blob)=>{
-          const file = new File([blob], 'tapsag-scripture-gift.png', {type:'image/png'});
-          if(navigator.canShare && navigator.canShare({files:[file]})){
-            await navigator.share({ files:[file], text: shareText(), title:'A gift from Tapsag' });
-          } else {
-            await navigator.share({ text: shareText(), title:'A gift from Tapsag', url:'https://tapsag.shop' });
-          }
-        });
-      } else {
-        await navigator.share({ text: shareText(), title:'A gift from Tapsag', url:'https://tapsag.shop' });
-      }
-    }catch(err){}
-  } else {
-    navigator.clipboard.writeText(shareText());
-    alert('Gift text copied — paste it anywhere you like.');
+      const fn=document.getElementById("fromName").value||document.getElementById("fromNameS").value||"A friend";
+      const tn=document.getElementById("toName").value||document.getElementById("toNameS").value||"You";
+      const giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value);
+      txt += "\n\n"+CFG.site+"/g/"+giftId;
+    }catch(e){ /* no media saved — share text-only, that's fine */ }
   }
-});
+  const enc=encodeURIComponent(txt), site=encodeURIComponent(CFG.site);
+  const direct={
+    whatsapp:"https://wa.me/?text="+enc,
+    telegram:"https://t.me/share/url?url="+site+"&text="+enc,
+    twitter:"https://twitter.com/intent/tweet?text="+enc,
+    facebook:"https://www.facebook.com/sharer/sharer.php?u="+site+"&quote="+enc,
+    linkedin:"https://www.linkedin.com/shareArticle?mini=true&url="+site+"&summary="+enc,
+    pinterest:"https://pinterest.com/pin/create/button/?url="+site+"&description="+enc,
+    email_app:"mailto:?subject="+encodeURIComponent("A Verse of Inspiration")+"&body="+enc,
+  };
+  const clip={instagram:"https://instagram.com/direct/inbox/",tiktok:"https://tiktok.com/messages",snapchat:"https://snapchat.com",threads:"https://threads.net",discord:"https://discord.com/channels/@me"};
+  if(direct[plat]) window.open(direct[plat],"_blank");
+  else if(clip[plat]) navigator.clipboard.writeText(txt).then(()=>{ toast("Copied! Opening "+cap(plat)+" - paste in DM"); setTimeout(()=>window.open(clip[plat],"_blank"),900); }).catch(()=>window.open(clip[plat],"_blank"));
+}
+function copyMsg(){
+  if(!sel){ toast("Select a verse first"); return; }
+  navigator.clipboard.writeText(buildMsg()).then(()=>toast("Message copied - paste in any DM")).catch(()=>toast("Copy not supported"));
+}
+async function copyLink(){
+  if(!sel){ toast("Select a verse first"); return; }
+  let link = CFG.site;
+  if(mediaState){
+    try{
+      const fn=document.getElementById("fromName").value||"A friend";
+      const tn=document.getElementById("toName").value||"You";
+      const giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value);
+      link = CFG.site+"/g/"+giftId;
+    }catch(e){ /* fall back to homepage link */ }
+  }
+  navigator.clipboard.writeText(link).then(()=>toast("Link copied"));
+}
+
+function showSucc(type,target){
+  document.getElementById("succMsg").textContent=type==="email"
+    ?"Your verse is on its way to "+target+". May it bless their heart today."
+    :"Your verse will arrive via text after payment.";
+  document.getElementById("succ").classList.add("on");
+  document.getElementById("succ").scrollIntoView({behavior:"smooth"});
+}
+function resetAll(){
+  sel=null; cat="all"; delMode="email"; mediaState=null;
+  document.getElementById("succ").classList.remove("on");
+  ["fromName","toName","fromNameS","toNameS","fromEmail","toEmail","toPhone","msgField"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+  document.getElementById("vshow").classList.remove("on");
+  document.querySelectorAll(".vc").forEach(c=>c.classList.remove("sel"));
+  document.querySelectorAll(".cat").forEach(b=>b.classList.remove("on"));
+  document.querySelector(".cat[data-c=\"all\"]").classList.add("on");
+  document.getElementById("murlRow").style.display="none";
+  document.getElementById("murlIn").value="";
+  clearMedia(); renderV(V); updateBtn();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),3200); }
+function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function showPrivacy(){ document.getElementById("privacyModal").classList.add("open"); document.body.style.overflow="hidden"; }
+function showTerms(){ document.getElementById("termsModal").classList.add("open"); document.body.style.overflow="hidden"; }
+function closeModal(id){ document.getElementById(id).classList.remove("open"); document.body.style.overflow=""; }
 </script>
 </body>
 </html>
