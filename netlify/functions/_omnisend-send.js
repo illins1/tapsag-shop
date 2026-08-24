@@ -64,7 +64,7 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      from: 'Tapsag <gifts@tapsag.shop>',
+      from: 'Tapsag <onboarding@resend.dev>',
       to: [recipient_contact],
       subject: `${sender_name} sent you a verse gift`,
       html: buildEmailHtml({ sender_name, recipient_name, verse_text, verse_ref, personal_note, returnLink })
