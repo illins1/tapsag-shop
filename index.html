@@ -799,15 +799,14 @@ async function sendSMS(){
 
 async function social(plat){
   if(!sel){ toast("Select a verse first"); return; }
+  if(!mediaState){ toast("Add a photo first — link needs something to show"); return; }
   let txt=buildMsg();
-  if(mediaState){
-    try{
-      const fn=document.getElementById("fromName").value||document.getElementById("fromNameS").value||"A friend";
-      const tn=document.getElementById("toName").value||document.getElementById("toNameS").value||"You";
-      const giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value);
-      txt += "\n\n"+CFG.site+"/g/"+giftId;
-    }catch(e){ /* no media saved — share text-only, that's fine */ }
-  }
+  try{
+    const fn=document.getElementById("fromName").value||document.getElementById("fromNameS").value||"A friend";
+    const tn=document.getElementById("toName").value||document.getElementById("toNameS").value||"You";
+    const giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value);
+    txt += "\n\n"+CFG.site+"/g/"+giftId;
+  }catch(e){ toast("Could not save gift: "+e.message); return; }
   const enc=encodeURIComponent(txt), site=encodeURIComponent(CFG.site);
   const direct={
     whatsapp:"https://wa.me/?text="+enc,
@@ -828,15 +827,14 @@ function copyMsg(){
 }
 async function copyLink(){
   if(!sel){ toast("Select a verse first"); return; }
-  let link = CFG.site;
-  if(mediaState){
-    try{
-      const fn=document.getElementById("fromName").value||"A friend";
-      const tn=document.getElementById("toName").value||"You";
-      const giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value);
-      link = CFG.site+"/g/"+giftId;
-    }catch(e){ /* fall back to homepage link */ }
-  }
+  if(!mediaState){ toast("Add a photo first — link needs something to show"); return; }
+  let link;
+  try{
+    const fn=document.getElementById("fromName").value||"A friend";
+    const tn=document.getElementById("toName").value||"You";
+    const giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value);
+    link = CFG.site+"/g/"+giftId;
+  }catch(e){ toast("Could not save gift: "+e.message); return; }
   navigator.clipboard.writeText(link).then(()=>toast("Link copied"));
 }
 
