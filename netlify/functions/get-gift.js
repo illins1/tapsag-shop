@@ -16,7 +16,11 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore('tapsag-gifts');
+    const store = getStore({
+      name: 'tapsag-gifts',
+      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN
+    });
     const record = await store.get(giftId, { type: 'json' });
     if (!record) {
       return { statusCode: 404, body: JSON.stringify({ error: 'Gift not found' }) };

@@ -49,7 +49,11 @@ exports.handler = async (event) => {
   };
 
   try {
-    const store = getStore('tapsag-gifts');
+    const store = getStore({
+      name: 'tapsag-gifts',
+      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN
+    });
     await store.setJSON(giftId, record);
     return { statusCode: 200, body: JSON.stringify({ giftId }) };
   } catch (err) {
