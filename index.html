@@ -242,7 +242,22 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
 <input class="hi" type="file" id="inVideoGallery" accept="video/*" onchange="onVideo(this)">
 <input class="hi" type="file" id="inFeatured" accept="image/*" onchange="setFeat(this)">
 
-<main class="pg">
+<main class="pg" id="giftView" style="display:none">
+  <div class="vcard" id="gvMediaWrap" style="padding:0;overflow:hidden;">
+    <div id="gvMedia" style="width:100%;"></div>
+  </div>
+  <div class="vcard" style="text-align:center;">
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.5;" id="gvVerse"></p>
+    <p style="color:var(--gl);font-weight:700;font-size:13px;margin-top:8px;" id="gvRef"></p>
+  </div>
+  <div class="vcard" id="gvNoteWrap" style="display:none;">
+    <p style="font-size:14px;line-height:1.6;" id="gvNote"></p>
+  </div>
+  <p style="text-align:center;color:var(--t2);font-size:13px;margin-bottom:20px;" id="gvFrom"></p>
+  <a href="/" class="reset-btn" style="text-decoration:none;">Send Your Own Verse Gift</a>
+</main>
+
+<main class="pg" id="mainApp">
 
   <div class="hero">
     <div class="hero-feat" id="heroFeat"></div>
@@ -447,7 +462,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
   </div>
 </main>
 
-<div class="sticky">
+<div class="sticky" id="stickyBar">
   <div class="sticky-inner">
     <button class="send-btn" id="sendBtn" onclick="mainSend()">
       Select a verse below
@@ -526,7 +541,48 @@ const V = [
 let sel=null, cat="all", delMode="email", mediaState=null;
 let mediaRecorder=null, recChunks=[], recTick=null, camStream=null;
 
-document.addEventListener("DOMContentLoaded", () => { renderV(V); });
+// ---------- Gift-view mode: /g/:giftId shows the recipient screen instead
+// of the compose UI. netlify.toml rewrites /g/* to /index.html (status 200),
+// so this is the only place that actually distinguishes the two.
+function initGiftView(){
+  const m = window.location.pathname.match(/^\/g\/([^/]+)/);
+  if(!m) return false;
+  const giftId = m[1];
+  document.getElementById("mainApp").style.display = "none";
+  document.getElementById("stickyBar").style.display = "none";
+  const gv = document.getElementById("giftView");
+  gv.style.display = "block";
+  document.getElementById("gvVerse").textContent = "Loading your gift\u2026";
+  fetch("/.netlify/functions/get-gift?id=" + encodeURIComponent(giftId))
+    .then(r => { if(!r.ok) throw new Error("not found"); return r.json(); })
+    .then(g => {
+      const mediaEl = document.getElementById("gvMedia");
+      if(g.mediaType === "video"){
+        mediaEl.innerHTML = '<video src="'+g.mediaData+'" controls playsinline style="width:100%;display:block;"></video>';
+      } else {
+        mediaEl.innerHTML = '<img src="'+g.mediaData+'" style="width:100%;display:block;">';
+      }
+      document.getElementById("gvVerse").textContent = '"' + g.verse_text + '"';
+      document.getElementById("gvRef").textContent = g.verse_ref ? ("\u2014 " + g.verse_ref) : "";
+      if(g.personal_note){
+        document.getElementById("gvNoteWrap").style.display = "block";
+        document.getElementById("gvNote").textContent = g.personal_note;
+      }
+      const fn = g.sender_name || "Someone special";
+      const tn = g.recipient_name || "you";
+      document.getElementById("gvFrom").textContent = "For " + tn + ", with love from " + fn;
+    })
+    .catch(() => {
+      document.getElementById("gvVerse").textContent = "This gift could not be found.";
+      document.getElementById("gvRef").textContent = "It may have expired or the link is incorrect.";
+    });
+  return true;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if(initGiftView()) return;
+  renderV(V);
+});
 
 function setFeat(inp){
   const f=inp.files[0]; if(!f) return;
