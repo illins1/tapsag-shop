@@ -182,6 +182,7 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .modal-box a{color:var(--gold);}
 .modal-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--inp);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .sticky{position:sticky;bottom:0;left:0;right:0;z-index:500;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 60%,transparent 100%);}
+.sticky-inner{max-width:450px;margin:0 auto;}
 .send-btn{width:100%;height:52px;border-radius:11px;font-size:15px;font-weight:700;border:none;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;cursor:pointer;transition:all .2s;}
 .send-btn:active{transform:scale(.98);}
 .send-btn.stripe-mode{background:#635BFF;color:#fff;}
@@ -447,9 +448,11 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
 </main>
 
 <div class="sticky">
-  <button class="send-btn" id="sendBtn" onclick="mainSend()">
-    Select a verse below &#x2193;
-  </button>
+  <div class="sticky-inner">
+    <button class="send-btn" id="sendBtn" onclick="mainSend()">
+      Select a verse below
+    </button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -661,7 +664,7 @@ function setDel(el,mode){
 }
 function updateBtn(){
   const btn=document.getElementById("sendBtn");
-  if(!sel){ btn.textContent="Select a verse below \u2193"; btn.classList.remove("stripe-mode"); return; }
+  if(!sel){ btn.textContent="Select a verse below"; btn.classList.remove("stripe-mode"); return; }
   if(delMode==="sms"){ btn.textContent="Pay $3.99 & Send SMS"; btn.classList.add("stripe-mode"); }
   else if(delMode==="social"){ btn.textContent="Copy & Share to Social DM"; btn.classList.remove("stripe-mode"); }
   else{ btn.textContent="Send Verse Gift Free"; btn.classList.remove("stripe-mode"); }
