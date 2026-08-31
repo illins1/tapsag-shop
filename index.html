@@ -282,7 +282,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
         </button>
         <button class="dtab" onclick="setDel(this,'sms')" id="tab-sms">
           <span class="dtab-lbl">&#x1F4AC; SMS Text</span>
-          <span class="dtab-sub sub-pay">$3.99 / send</span>
+          <span class="dtab-sub sub-pay">$1.99 / send</span>
         </button>
         <button class="dtab" onclick="setDel(this,'social')" id="tab-social">
           <span class="dtab-lbl">&#x1F517; Social DM</span>
@@ -366,7 +366,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
     </div>
 
     <div class="del-panel" id="pan-sms">
-      <div class="pnote">&#x1F4AC; One-time payment of <strong>$3.99</strong> per message via Stripe</div>
+      <div class="pnote">&#x1F4AC; One-time payment of <strong>$1.99</strong> per message via Stripe</div>
       <div class="row2">
         <div class="field"><label>Your Name</label><input type="text" id="fromNameS" placeholder="From..."></div>
         <div class="field"><label>Recipient</label><input type="text" id="toNameS" placeholder="To..."></div>
@@ -463,7 +463,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
       <h2>Terms of Use</h2>
       <p><strong>Effective:</strong> June 2026</p>
       <p>Tapsag is a faith-based verse gifting platform. By using this service you agree to use it for encouragement and inspiration only. You may not use Tapsag to send spam, harmful content, or unsolicited messages.</p>
-      <p>Email delivery is free. SMS delivery costs $3.99 per message, charged via Stripe. All payments are final.</p>
+      <p>Email delivery is free. SMS delivery costs $1.99 per message, charged via Stripe. All payments are final.</p>
       <p>Tapsag is provided as-is. We reserve the right to update these terms at any time.</p>
       <p>Contact: <a href="mailto:tapsag1940@gmail.com">tapsag1940@gmail.com</a></p>
     </div>
@@ -788,7 +788,7 @@ function setDel(el,mode){
 function updateBtn(){
   const btn=document.getElementById("sendBtn");
   if(!sel){ btn.textContent="Select a verse below"; btn.classList.remove("stripe-mode"); return; }
-  if(delMode==="sms"){ btn.textContent="Pay $3.99 & Send SMS"; btn.classList.add("stripe-mode"); }
+  if(delMode==="sms"){ btn.textContent="Pay $1.99 & Send SMS"; btn.classList.add("stripe-mode"); }
   else if(delMode==="social"){ btn.textContent="Copy & Share to Social DM"; btn.classList.remove("stripe-mode"); }
   else{ btn.textContent="Send Verse Gift Free"; btn.classList.remove("stripe-mode"); }
 }

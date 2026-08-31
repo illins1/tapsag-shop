@@ -35,7 +35,7 @@ exports.handler = async (event) => {
   params.append('cancel_url', `${siteUrl}/`);
   params.append('line_items[0][price_data][currency]', 'usd');
   params.append('line_items[0][price_data][product_data][name]', 'Tapsag — Text Delivery');
-  params.append('line_items[0][price_data][unit_amount]', '399');
+  params.append('line_items[0][price_data][unit_amount]', '199');
   params.append('line_items[0][quantity]', '1');
   params.append('metadata[sender_name]', sender_name);
   params.append('metadata[recipient_name]', recipient_name);

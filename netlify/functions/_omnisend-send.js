@@ -8,12 +8,56 @@
 // that path is dead. Resend just sends the email immediately via one
 // API call, which is exactly what this needs.
 //
-// SMS delivery (the paid $3.99 text path) is NOT wired to a provider
-// yet — that requires a separate service (e.g. Twilio) with its own
-// account and phone number. Calling this for a phone contact will
-// throw a clear "not configured" error rather than fail silently.
+// SMS delivery (the paid $1.99 text path) sends via Twilio's REST API
+// directly with fetch + Basic Auth — no SDK needed, same approach as the
+// Stripe webhook signature verification elsewhere in this project.
 
 const RESEND_API_BASE = 'https://api.resend.com';
+const TWILIO_API_BASE = 'https://api.twilio.com/2010-04-01';
+
+function normalizePhone(raw) {
+  const digits = raw.replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) return digits;
+  if (digits.length === 10) return '+1' + digits;       // assume US number
+  if (digits.length === 11 && digits.startsWith('1')) return '+' + digits;
+  return '+' + digits;
+}
+
+async function sendSmsGift({ sender_name, recipient_contact, verse_text, verse_ref, returnLink }) {
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+  if (!sid || !token || !fromNumber) {
+    throw new Error('Text delivery is not fully configured yet — missing Twilio credentials.');
+  }
+
+  const to = normalizePhone(recipient_contact);
+  const body = `${sender_name} sent you a verse: "${verse_text}"${verse_ref ? ' - ' + verse_ref : ''}. View it: ${returnLink}`;
+
+  const auth = Buffer.from(`${sid}:${token}`).toString('base64');
+  const params = new URLSearchParams();
+  params.append('To', to);
+  params.append('From', fromNumber);
+  params.append('Body', body);
+
+  const res = await fetch(`${TWILIO_API_BASE}/Accounts/${sid}/Messages.json`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: params.toString()
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error('Twilio send failed:', errBody);
+    throw new Error('Failed to send text message — check the recipient number and Twilio account status.');
+  }
+
+  return await res.json();
+}
 
 function buildEmailHtml({ sender_name, recipient_name, verse_text, verse_ref, personal_note, returnLink }) {
   return `
@@ -46,10 +90,8 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
   const returnLink = `${siteUrl}/g/${giftId}`;
 
   if (!isEmail) {
-    // SMS not wired to a provider yet — fail loudly and clearly instead of
-    // pretending it worked, so this shows up as an obvious "still needs setup"
-    // message rather than a mystery silent failure.
-    throw new Error('Text delivery is not connected to an SMS provider yet — this needs to be set up before the paid text path can send.');
+    await sendSmsGift({ sender_name, recipient_contact, verse_text, verse_ref, returnLink });
+    return { giftId, shareLink: returnLink, isEmail };
   }
 
   const apiKey = process.env.RESEND_API_KEY;
