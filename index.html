@@ -597,10 +597,34 @@ function handleVideoTap(e){
   if(!isMobile()){ e.preventDefault(); startRec(); }
 }
 
+function compressPhoto(dataUrl, maxDim, quality){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if(w > maxDim || h > maxDim){
+        if(w > h){ h = Math.round(h * (maxDim / w)); w = maxDim; }
+        else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => resolve(dataUrl); // fall back to original if it fails to decode
+    img.src = dataUrl;
+  });
+}
 function onPhoto(inp){
   const f=inp.files[0]; if(!f) return;
   const r=new FileReader();
-  r.onload=e=>{ mediaState={type:"photo",src:e.target.result}; renderMedia(); };
+  r.onload=async e=>{
+    // Phone camera photos can be 4-12MB raw — well over Netlify's function
+    // payload limit once base64-encoded. Resize/re-compress before storing.
+    const compressed = await compressPhoto(e.target.result, 1600, 0.82);
+    mediaState={type:"photo",src:compressed};
+    renderMedia();
+  };
   r.readAsDataURL(f); inp.value="";
 }
 function onVideo(inp){
@@ -783,8 +807,10 @@ async function saveGiftAndGetId(fromName, toName, personalNote){
       personal_note: personalNote
     })
   });
-  const data = await res.json();
-  if(!res.ok) throw new Error(data.error || "Could not save gift media");
+  let data = {};
+  try { data = await res.json(); } catch(_) {}
+  if(!res.ok) throw new Error(data.error || "Could not save gift media (server error)");
+  if(!data.giftId) throw new Error("Could not save gift media");
   return data.giftId;
 }
 
@@ -850,8 +876,9 @@ async function sendSMS(){
         gift_id: giftId
       }),
     });
-    const data=await res.json();
-    if(!res.ok) throw new Error(data.error || "Checkout failed");
+    let data = {};
+    try { data = await res.json(); } catch(_) {}
+    if(!res.ok) throw new Error(data.error || "Checkout failed (server error)");
     window.location.href = data.url;
   }catch(err){ toast(err.message||"Could not start checkout"); btn.disabled=false; updateBtn(); }
 }
