@@ -255,6 +255,14 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
   </div>
   <p style="text-align:center;color:var(--t2);font-size:13px;margin-bottom:20px;" id="gvFrom"></p>
   <a href="/" class="reset-btn" style="text-decoration:none;">Send Your Own Verse Gift</a>
+
+  <div class="vcard" style="margin-top:20px;">
+    <p style="font-size:13px;font-weight:700;color:var(--gl);margin-bottom:10px;">LEAVE A REPLY</p>
+    <input id="gvName" placeholder="Your name (optional)" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:#fff;font-size:14px;margin-bottom:8px;box-sizing:border-box;">
+    <textarea id="gvMsg" placeholder="Say something encouraging..." maxlength="300" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:#fff;font-size:14px;box-sizing:border-box;resize:vertical;"></textarea>
+    <button onclick="submitReply()" id="gvSubmitBtn" style="width:100%;margin-top:8px;height:44px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;font-weight:700;font-size:14px;">Post Reply</button>
+    <div id="gvComments" style="margin-top:16px;"></div>
+  </div>
 </main>
 
 <main class="pg" id="mainApp">
@@ -544,10 +552,44 @@ let mediaRecorder=null, recChunks=[], recTick=null, camStream=null;
 // ---------- Gift-view mode: /g/:giftId shows the recipient screen instead
 // of the compose UI. netlify.toml rewrites /g/* to /index.html (status 200),
 // so this is the only place that actually distinguishes the two.
+let currentGiftId = null;
+function renderComments(list){
+  const wrap = document.getElementById("gvComments");
+  if(!list || !list.length){ wrap.innerHTML = ""; return; }
+  wrap.innerHTML = list.slice().reverse().map(c => {
+    const name = document.createElement("div").appendChild(document.createTextNode(c.name || "Someone")).textContent;
+    const msg = document.createElement("div").appendChild(document.createTextNode(c.message || "")).textContent;
+    return '<div style="padding:10px 0;border-top:1px solid var(--line);">'
+      + '<p style="font-size:13px;font-weight:700;color:var(--gl);margin:0 0 4px;">' + name + '</p>'
+      + '<p style="font-size:14px;color:#EDE8DA;margin:0;">' + msg + '</p></div>';
+  }).join("");
+}
+function submitReply(){
+  if(!currentGiftId) return;
+  const nameEl = document.getElementById("gvName");
+  const msgEl = document.getElementById("gvMsg");
+  const message = msgEl.value.trim();
+  if(!message){ return; }
+  const btn = document.getElementById("gvSubmitBtn");
+  btn.disabled = true; btn.textContent = "Posting\u2026";
+  fetch("/.netlify/functions/add-comment", {
+    method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ giftId: currentGiftId, name: nameEl.value.trim(), message })
+  })
+    .then(r => r.json().then(data => ({ ok: r.ok, data })))
+    .then(({ ok, data }) => {
+      if(!ok) throw new Error(data.error || "Could not post reply");
+      renderComments(data.comments);
+      msgEl.value = "";
+    })
+    .catch(err => { alert(err.message); })
+    .finally(() => { btn.disabled = false; btn.textContent = "Post Reply"; });
+}
 function initGiftView(){
   const m = window.location.pathname.match(/^\/g\/([^/]+)/);
   if(!m) return false;
   const giftId = m[1];
+  currentGiftId = giftId;
   document.getElementById("mainApp").style.display = "none";
   document.getElementById("stickyBar").style.display = "none";
   const gv = document.getElementById("giftView");
@@ -571,6 +613,7 @@ function initGiftView(){
       const fn = g.sender_name || "Someone special";
       const tn = g.recipient_name || "you";
       document.getElementById("gvFrom").textContent = "For " + tn + ", with love from " + fn;
+      renderComments(g.comments);
     })
     .catch(() => {
       document.getElementById("gvVerse").textContent = "This gift could not be found.";
