@@ -724,7 +724,7 @@ async function startRec(){
     document.getElementById("mview").classList.add("filled");
     document.getElementById("recOv").style.display="flex";
     document.getElementById("mbar").style.display="block";
-    recChunks=[]; mediaRecorder=new MediaRecorder(stream);
+    recChunks=[]; mediaRecorder=new MediaRecorder(stream, { videoBitsPerSecond: 700000 });
     mediaRecorder.ondataavailable=e=>{ if(e.data.size>0) recChunks.push(e.data); };
     mediaRecorder.onstop=()=>{
       const blob=new Blob(recChunks,{type:"video/webm"});
@@ -819,6 +819,16 @@ function getMediaPayload(){
     if(mediaState.type==="photo"){
       resolve({ mediaType:"photo", mediaData: mediaState.src });
     } else if(mediaState.type==="video"){
+      // Netlify's function payload limit is ~6MB, and base64 adds ~33% overhead,
+      // so raw video needs to stay well under that. Recorded video is now capped
+      // via bitrate above, but uploaded gallery videos can be 10-50MB+ with no
+      // built-in limit — check before ever attempting to read/send it.
+      const MAX_VIDEO_BYTES = 4 * 1024 * 1024; // 4MB raw ≈ 5.3MB base64
+      const rawSize = mediaState.blob ? mediaState.blob.size : (mediaState.file ? mediaState.file.size : 0);
+      if(rawSize > MAX_VIDEO_BYTES){
+        reject(new Error("This video is too large to send (max ~4MB / a few seconds). Try a shorter clip, lower quality, or use a photo instead."));
+        return;
+      }
       if(mediaState.blob){
         const reader=new FileReader();
         reader.onload=()=>resolve({ mediaType:"video", mediaData: reader.result });
