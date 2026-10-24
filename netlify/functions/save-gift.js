@@ -1,10 +1,4 @@
-// save-gift.js
-// Stores the gift's media (photo/video as base64) + verse + message in
-// Netlify Blobs, keyed by a generated gift_id. This runs BEFORE send-gift.js
-// (free/email path) or create-checkout-session.js (paid/text path) so both
-// delivery channels reference the same stored gift record.
-//
-// Netlify Blobs requires no separate account/API key — it's built into the
+Blobs requires no separate account/API key — it's built into the
 // Netlify site itself and works automatically once @netlify/blobs is a
 // dependency (see package.json) and the site is deployed on Netlify.
 
@@ -41,20 +35,4 @@ exports.handler = async (event) => {
     mediaType,       // 'photo' | 'video'
     mediaData,        // base64 data URL
     verse_text,
-    verse_ref: verse_ref || '',
-    sender_name: sender_name || '',
-    recipient_name: recipient_name || '',
-    personal_note: personal_note || '',
-    createdAt: new Date().toISOString()
-  };
-
-  try {
-      const store = getStore('tapsag-gifts');const store = getStore({
-     
-    await store.setJSON(giftId, record);
-    return { statusCode: 200, body: JSON.stringify({ giftId }) };
-  } catch (err) {
-    console.error('save-gift error:', err);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Failed to save gift' }) };
-  }
-};
+    verse_ref: verse_ref ||
