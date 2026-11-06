@@ -1,4 +1,4 @@
-Blobs requires no separate account/API key — it's built into the
+// Blobs requires no separate account/API key — it's built into the
 // Netlify site itself and works automatically once @netlify/blobs is a
 // dependency (see package.json) and the site is deployed on Netlify.
 
@@ -33,6 +33,27 @@ exports.handler = async (event) => {
   const record = {
     giftId,
     mediaType,       // 'photo' | 'video'
-    mediaData,        // base64 data URL
+    mediaData,       // base64 data URL
     verse_text,
-    verse_ref: verse_ref ||
+    verse_ref: verse_ref || '',
+    sender_name: sender_name || '',
+    recipient_name: recipient_name || '',
+    personal_note: personal_note || '',
+    comments: [],
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    const store = getStore({
+      name: 'tapsag-gifts',
+      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN
+    });
+
+    await store.setJSON(giftId, record);
+    return { statusCode: 200, body: JSON.stringify({ giftId }) };
+  } catch (err) {
+    console.error('save-gift error:', err);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Could not save gift media (server error)' }) };
+  }
+};
