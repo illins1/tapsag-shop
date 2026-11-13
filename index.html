@@ -880,7 +880,7 @@ async function sendEmail(){
     let giftId=null;
     if(mediaState){
       try{ giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value); }
-      catch(err){ toast(err.message); }
+      .vshow::before{display:none;content:"\201C";
     }
     const res=await fetch("/.netlify/functions/send-gift",{
       method:"POST", headers:{"Content-Type":"application/json"},
