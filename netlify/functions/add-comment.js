@@ -4,7 +4,7 @@
 // gift's comments array and saves it back to the same Netlify Blobs record
 // that save-gift.js/get-gift.js already use.
 
-const { getStore } = require('@netlify/blobs');
+const { withStore } = require('./_store');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -30,13 +30,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore({
-      name: 'tapsag-gifts',
-      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
-      token: process.env.NETLIFY_BLOBS_TOKEN
-    });
-
-    const record = await store.get(giftId, { type: 'json' });
+    const record = await withStore(event, (store) => store.get(giftId, { type: 'json' }));
     if (!record) {
       return { statusCode: 404, body: JSON.stringify({ error: 'Gift not found' }) };
     }
@@ -48,7 +42,7 @@ exports.handler = async (event) => {
     }
     record.comments.push({ name, message, at: new Date().toISOString() });
 
-    await store.setJSON(giftId, record);
+    await withStore(event, (store) => store.setJSON(giftId, record));
     return { statusCode: 200, body: JSON.stringify({ comments: record.comments }) };
   } catch (err) {
     console.error('add-comment error:', err);
