@@ -32,6 +32,14 @@
   .to-line{ text-align:center; color:var(--muted); font-size:13px; margin-top:18px; }
   .link-row{ text-align:center; margin-top:26px; display:flex; flex-direction:column; gap:10px; }
   a.btn{ color:var(--gold); font-weight:700; text-decoration:none; font-size:13px; }
+  .share-box{ margin-top:26px; }
+  .share-main{ width:100%; min-height:52px; border:none; border-radius:12px; background:var(--grad); color:#1a0e02;
+    font:800 15px 'Manrope',sans-serif; cursor:pointer; padding:0 14px; }
+  .share-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
+  .share-grid a, .share-grid button{ min-height:46px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); border-radius:10px; background:var(--surface-solid); color:var(--text);
+    font:700 13px 'Manrope',sans-serif; text-decoration:none; cursor:pointer; }
+  .share-hint{ text-align:center; color:var(--muted); font-size:12px; margin:10px 0 0; }
   .loading, .err{ text-align:center; color:var(--muted); padding:80px 20px; }
 </style>
 </head>
@@ -61,6 +69,19 @@
       </div>
 
       <div class="to-line" id="toLine"></div>
+
+      <div class="share-box">
+        <button class="share-main" id="shareMain">&#x1F4E4; Share to Instagram, TikTok, Messages &amp; more</button>
+        <div class="share-grid">
+          <a id="shWa" target="_blank" rel="noopener">WhatsApp</a>
+          <a id="shFb" target="_blank" rel="noopener">Facebook</a>
+          <a id="shX" target="_blank" rel="noopener">X</a>
+          <a id="shTg" target="_blank" rel="noopener">Telegram</a>
+          <a id="shSms">Text</a>
+          <button id="shCopy">Copy link</button>
+        </div>
+        <p class="share-hint">Send it to as many people as you like &mdash; same link, everywhere.</p>
+      </div>
 
       <div class="link-row">
         <a class="btn" href="/">&larr; Send another gift</a>
@@ -98,6 +119,24 @@ if(!giftId){
       if(gift.recipient_name){
         document.getElementById('toLine').textContent = 'Sent to ' + gift.recipient_name;
       }
+      // Share row — same link for every app so replies all land on one gift.
+      const link = location.origin + '/g/' + giftId;
+      const text = '"' + gift.verse_text + '" ' + (gift.verse_ref ? '— ' + gift.verse_ref : '');
+      const enc = encodeURIComponent(text + '\n\n' + link);
+      document.getElementById('shWa').href = 'https://wa.me/?text=' + enc;
+      document.getElementById('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link);
+      document.getElementById('shX').href = 'https://twitter.com/intent/tweet?text=' + enc;
+      document.getElementById('shTg').href = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+      document.getElementById('shSms').href = 'sms:?&body=' + enc;
+      const copy = () => (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject())
+        .then(() => { document.getElementById('shCopy').textContent = 'Copied ✓'; })
+        .catch(() => { prompt('Copy this link:', link); });
+      document.getElementById('shCopy').onclick = copy;
+      document.getElementById('shareMain').onclick = () => {
+        if (navigator.share) navigator.share({ title: 'A Verse Gift on Tapsag', text, url: link }).catch(() => {});
+        else copy();
+      };
+
       if(gift.mediaType === 'video'){
         const v = document.getElementById('video');
         v.src = gift.mediaData;
