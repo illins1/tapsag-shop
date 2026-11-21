@@ -136,6 +136,28 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 
 .sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .sec-lbl::after{content:"";flex:1;height:1px;background:var(--line);}
+
+.post{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.post-h{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+.post-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;flex:none;}
+.post-who{display:flex;flex-direction:column;min-width:0;flex:1;}
+.post-who b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.post-who span{font-size:12px;color:var(--t2);}
+.post-tag{font-size:11px;font-weight:700;color:var(--gl);letter-spacing:.08em;text-transform:uppercase;}
+.post-media{background:#000;}
+.post-act{display:flex;align-items:center;gap:4px;padding:6px 8px;}
+.post-act button{min-width:44px;min-height:44px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;}
+.post-act button.on{color:#ff4d6d;}
+.post-act .post-copy{margin-left:auto;font-size:13px;font-weight:700;color:var(--gl);}
+.post-cap{padding:0 14px 8px;}
+.post-verse{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;line-height:1.45;margin:0;}
+.post-ref{color:var(--gl);font-weight:700;font-size:13px;margin:6px 0 0;}
+.post-note{font-size:14px;line-height:1.5;margin:10px 0 0;}
+.post-comments{padding:0 14px;}
+.post-reply{padding:10px 14px 14px;border-top:1px solid var(--line);margin-top:8px;}
+.post-reply input{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:0 14px;min-height:44px;color:#fff;font-size:15px;}
+.post-reply-row{display:flex;gap:8px;margin-top:8px;}
+.post-reply-row button{min-width:64px;min-height:44px;border:none;border-radius:22px;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;font-weight:700;font-size:14px;}
 .vcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px;}
 .srch{position:relative;margin-bottom:9px;}
 .srch input{width:100%;height:var(--h);padding:0 13px 0 40px;background:var(--inp);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-size:15px;outline:none;transition:border .2s;}
@@ -243,26 +265,35 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
 <input class="hi" type="file" id="inFeatured" accept="image/*" onchange="setFeat(this)">
 
 <main class="pg" id="giftView" style="display:none">
-  <div class="vcard" id="gvMediaWrap" style="padding:0;overflow:hidden;">
-    <div id="gvMedia" style="width:100%;"></div>
-  </div>
-  <div class="vcard" style="text-align:center;">
-    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.5;" id="gvVerse"></p>
-    <p style="color:var(--gl);font-weight:700;font-size:13px;margin-top:8px;" id="gvRef"></p>
-  </div>
-  <div class="vcard" id="gvNoteWrap" style="display:none;">
-    <p style="font-size:14px;line-height:1.6;" id="gvNote"></p>
-  </div>
-  <p style="text-align:center;color:var(--t2);font-size:13px;margin-bottom:20px;" id="gvFrom"></p>
+  <article class="post">
+    <header class="post-h">
+      <div class="post-av" id="gvAv">T</div>
+      <div class="post-who"><b id="gvFrom">Someone special</b><span id="gvTo"></span></div>
+      <span class="post-tag">Tapsag</span>
+    </header>
+    <div id="gvMediaWrap" class="post-media"><div id="gvMedia" style="width:100%;"></div></div>
+    <div class="post-act">
+      <button id="gvLike" aria-label="Like" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'\u2665':'\u2661'">&#x2661;</button>
+      <button aria-label="Reply" onclick="document.getElementById('gvMsg').focus()">&#x1F4AC;</button>
+      <button aria-label="Share" onclick="shareGiftView()">&#x1F4E4;</button>
+      <button class="post-copy" onclick="copyGiftLink(this)">Copy link</button>
+    </div>
+    <div class="post-cap">
+      <p class="post-verse" id="gvVerse"></p>
+      <p class="post-ref" id="gvRef"></p>
+      <p class="post-note" id="gvNoteWrap" style="display:none;"><b id="gvNoteBy"></b> <span id="gvNote"></span></p>
+    </div>
+    <div id="gvComments" class="post-comments"></div>
+    <div class="post-reply">
+      <input id="gvName" placeholder="Your name (optional)" autocomplete="off">
+      <div class="post-reply-row">
+        <input id="gvMsg" placeholder="Add a reply..." maxlength="300" autocomplete="off">
+        <button onclick="submitReply()" id="gvSubmitBtn">Post</button>
+      </div>
+    </div>
+  </article>
+  <button class="reset-btn" style="margin-bottom:12px;" onclick="shareGiftView()">&#x1F4E4; Share this gift with others</button>
   <a href="/" class="reset-btn" style="text-decoration:none;">Send Your Own Verse Gift</a>
-
-  <div class="vcard" style="margin-top:20px;">
-    <p style="font-size:13px;font-weight:700;color:var(--gl);margin-bottom:10px;">LEAVE A REPLY</p>
-    <input id="gvName" placeholder="Your name (optional)" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:#fff;font-size:14px;margin-bottom:8px;box-sizing:border-box;">
-    <textarea id="gvMsg" placeholder="Say something encouraging..." maxlength="300" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:#fff;font-size:14px;box-sizing:border-box;resize:vertical;"></textarea>
-    <button onclick="submitReply()" id="gvSubmitBtn" style="width:100%;margin-top:8px;height:44px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;font-weight:700;font-size:14px;">Post Reply</button>
-    <div id="gvComments" style="margin-top:16px;"></div>
-  </div>
 </main>
 
 <main class="pg" id="mainApp">
@@ -320,7 +351,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
 
       <div class="rec-ov" id="recOv">
         <div class="rdot"></div>
-        <div class="rtime" id="rtime">0:30</div>
+        <div class="rtime" id="rtime">0:15</div>
         <div class="rlbl">Recording</div>
         <button class="rstop" onclick="stopRec()">Stop &amp; Use</button>
       </div>
@@ -360,7 +391,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
         <div class="field"><label>Recipient</label><input type="text" id="toName" placeholder="To..."></div>
       </div>
       <div class="field"><label>Your Email</label><input type="email" id="fromEmail" placeholder="your@email.com"></div>
-      <div class="field"><label>Their Email &#x2731;</label><input type="email" id="toEmail" placeholder="their@email.com"></div>
+      <div class="field"><label>Their Email &#x2731; <span style="font-weight:400;opacity:.7">(add more with commas)</span></label><input type="text" inputmode="email" autocapitalize="off" autocomplete="off" id="toEmail" placeholder="their@email.com, another@email.com"></div>
       <div class="divider">or share a link instead</div>
       <button class="ghost-btn" onclick="copyLink()">&#x1F517; Copy Shareable Link</button>
     </div>
@@ -375,6 +406,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
     </div>
 
     <div class="del-panel" id="pan-social">
+      <button class="ghost-btn" style="margin-bottom:12px;border-color:var(--gold);color:var(--gl);" onclick="shareNative()">&#x1F4E4; Share to any app (Instagram, TikTok, Messages&hellip;)</button>
       <p class="soc-note">Tap a platform to open it and send your verse as a DM. For apps that don&rsquo;t allow direct links, it auto-copies &mdash; just paste. &#x1F64F;</p>
       <div class="soc-grid">
         <div class="sb" onclick="social('whatsapp')"><span class="si">&#x1F4AC;</span><span class="sn">WhatsApp</span></div>
@@ -559,9 +591,7 @@ function renderComments(list){
   wrap.innerHTML = list.slice().reverse().map(c => {
     const name = document.createElement("div").appendChild(document.createTextNode(c.name || "Someone")).textContent;
     const msg = document.createElement("div").appendChild(document.createTextNode(c.message || "")).textContent;
-    return '<div style="padding:10px 0;border-top:1px solid var(--line);">'
-      + '<p style="font-size:13px;font-weight:700;color:var(--gl);margin:0 0 4px;">' + name + '</p>'
-      + '<p style="font-size:14px;color:#EDE8DA;margin:0;">' + msg + '</p></div>';
+    return '<p style="font-size:14px;line-height:1.5;margin:0 0 8px;"><b>' + name + '</b> ' + msg + '</p>';
   }).join("");
 }
 function submitReply(){
@@ -583,7 +613,17 @@ function submitReply(){
       msgEl.value = "";
     })
     .catch(err => { alert(err.message); })
-    .finally(() => { btn.disabled = false; btn.textContent = "Post Reply"; });
+    .finally(() => { btn.disabled = false; btn.textContent = "Post"; });
+}
+function copyGiftLink(b){
+  const url = window.location.href.split("?")[0];
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>{ b.textContent="Copied \u2713"; }).catch(()=>prompt("Copy this link:",url));
+}
+function shareGiftView(){
+  const url = window.location.href.split("?")[0];
+  const text = (document.getElementById("gvVerse").textContent||"") + " " + (document.getElementById("gvRef").textContent||"");
+  if(navigator.share){ navigator.share({ title:"A Verse Gift on Tapsag", text:text.trim(), url }).catch(()=>{}); }
+  else navigator.clipboard.writeText(url).then(()=>toast("Link copied — paste it anywhere")).catch(()=>toast(url));
 }
 function initGiftView(){
   const m = window.location.pathname.match(/^\/g\/([^/]+)/);
@@ -600,7 +640,8 @@ function initGiftView(){
     .then(g => {
       const mediaEl = document.getElementById("gvMedia");
       if(g.mediaType === "video"){
-        mediaEl.innerHTML = '<video src="'+g.mediaData+'" controls playsinline style="width:100%;display:block;"></video>';
+        // Social-style: starts playing on its own (muted, as phones require), loops; tap for sound.
+        mediaEl.innerHTML = '<video src="'+g.mediaData+'" controls playsinline autoplay muted loop style="width:100%;display:block;"></video>';
       } else {
         mediaEl.innerHTML = '<img src="'+g.mediaData+'" style="width:100%;display:block;">';
       }
@@ -612,7 +653,10 @@ function initGiftView(){
       }
       const fn = g.sender_name || "Someone special";
       const tn = g.recipient_name || "you";
-      document.getElementById("gvFrom").textContent = "For " + tn + ", with love from " + fn;
+      document.getElementById("gvFrom").textContent = fn;
+      document.getElementById("gvTo").textContent = "sent this verse for " + tn;
+      document.getElementById("gvAv").textContent = (fn.trim()[0] || "T").toUpperCase();
+      document.getElementById("gvNoteBy").textContent = fn;
       renderComments(g.comments);
     })
     .catch(() => {
@@ -670,15 +714,128 @@ function onPhoto(inp){
   };
   r.readAsDataURL(f); inp.value="";
 }
-function onVideo(inp){
+// ---------- Video limits. Netlify functions cap request/response bodies at ~6MB and
+// base64 adds ~33%, so the FINAL video must stay under ~3.2MB. Phone videos are
+// 20MB+ (1080p, ~20Mbps), so every uploaded video is re-encoded in the browser:
+// scaled to 720p, trimmed to 15s, bitrate chosen from the length so it always fits.
+const MAX_VIDEO_SECS = 15;
+const TARGET_VIDEO_BYTES = 2.6 * 1024 * 1024;  // what we aim for
+const MAX_VIDEO_BYTES = 3.2 * 1024 * 1024;     // hard ceiling (~4.3MB base64)
+let videoBusy = false;
+
+function setVidBusy(on, msg){
+  videoBusy = on;
+  let el = document.getElementById("vidBusy");
+  if(!el){
+    el = document.createElement("div"); el.id = "vidBusy";
+    el.style.cssText = "position:absolute;inset:0;z-index:5;background:rgba(8,7,15,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#E4C76B;font-weight:700;font-size:14px;text-align:center;padding:16px;";
+    document.getElementById("mview").appendChild(el);
+  }
+  el.style.display = on ? "flex" : "none";
+  if(on) el.innerHTML = '<span class="spin"></span><div>' + (msg||"Getting your video ready…") + '</div>';
+}
+
+function pickVideoMime(){
+  const tries = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4","video/webm;codecs=vp8,opus","video/webm;codecs=vp9,opus","video/webm"];
+  for(const m of tries){ try{ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }catch(_){} }
+  return "";
+}
+
+// Re-encode `file` in real time (plays it into a canvas + MediaRecorder).
+// Resolves {blob, secs}. Rejects if the browser can't do it.
+function transcodeVideo(file, maxDim, videoBps){
+  return new Promise((resolve, reject)=>{
+    if(!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){ reject(new Error("unsupported")); return; }
+    const url = URL.createObjectURL(file);
+    const v = document.createElement("video");
+    v.src = url; v.playsInline = true; v.preload = "auto"; v.muted = false; v.volume = 1;
+    v.setAttribute("playsinline",""); v.style.cssText = "position:fixed;left:-9999px;width:1px;height:1px;";
+    document.body.appendChild(v);
+    let ac=null, done=false, rec=null, chunks=[], raf=0;
+    const cleanup=()=>{ done=true; cancelAnimationFrame(raf); try{v.pause();}catch(_){} try{ac&&ac.close();}catch(_){} v.remove(); URL.revokeObjectURL(url); };
+    const fail=(e)=>{ if(done) return; cleanup(); reject(e instanceof Error?e:new Error(String(e||"transcode failed"))); };
+    v.onerror=()=>fail(new Error("Could not read this video"));
+    v.onloadedmetadata=async ()=>{
+      try{
+        const secs = Math.min(v.duration||MAX_VIDEO_SECS, MAX_VIDEO_SECS);
+        let w=v.videoWidth, h=v.videoHeight;
+        if(!w||!h){ fail(new Error("Could not read this video")); return; }
+        const sc = Math.min(1, maxDim/Math.max(w,h));
+        w = Math.max(2, Math.round(w*sc/2)*2); h = Math.max(2, Math.round(h*sc/2)*2);
+        const cv = document.createElement("canvas"); cv.width=w; cv.height=h;
+        const cx = cv.getContext("2d");
+        const out = cv.captureStream(30);
+        // Audio goes through WebAudio into the recorder only — silent for the user.
+        try{
+          const AC = window.AudioContext||window.webkitAudioContext;
+          ac = new AC(); if(ac.state==="suspended") await ac.resume();
+          const dest = ac.createMediaStreamDestination();
+          ac.createMediaElementSource(v).connect(dest);
+          dest.stream.getAudioTracks().forEach(t=>out.addTrack(t));
+        }catch(_){ /* no audio track — video-only still sends */ }
+        const mime = pickVideoMime();
+        const opts = { videoBitsPerSecond: videoBps, audioBitsPerSecond: 64000 };
+        if(mime) opts.mimeType = mime;
+        rec = new MediaRecorder(out, opts);
+        rec.ondataavailable = e=>{ if(e.data&&e.data.size>0) chunks.push(e.data); };
+        rec.onerror = ()=>fail(new Error("recorder error"));
+        rec.onstop = ()=>{
+          if(done) return;
+          const type = (rec.mimeType||mime||"video/webm").split(";")[0];
+          const blob = new Blob(chunks,{type});
+          cleanup(); resolve({ blob, secs });
+        };
+        const draw=()=>{
+          if(done) return;
+          cx.drawImage(v,0,0,w,h);
+          const pct = Math.min(99, Math.round(100*v.currentTime/secs));
+          const b = document.querySelector("#vidBusy div"); if(b) b.textContent = "Getting your video ready… " + pct + "%";
+          if(v.currentTime >= secs || v.ended){ if(rec.state!=="inactive") rec.stop(); return; }
+          raf = requestAnimationFrame(draw);
+        };
+        rec.start(250);
+        await v.play();
+        draw();
+      }catch(e){ fail(e); }
+    };
+  });
+}
+
+async function optimizeVideo(file){
+  // Small enough already? Keep the original, but still enforce the 15s cap.
+  const meta = await new Promise((res)=>{
+    const u=URL.createObjectURL(file), t=document.createElement("video");
+    t.preload="metadata"; t.src=u;
+    t.onloadedmetadata=()=>{ const d=t.duration; URL.revokeObjectURL(u); res({dur:d}); };
+    t.onerror=()=>{ URL.revokeObjectURL(u); res({dur:NaN}); };
+  });
+  if(file.size <= TARGET_VIDEO_BYTES && meta.dur <= MAX_VIDEO_SECS+0.5) return { blob:file, trimmed:false };
+  const dur = Math.min(isFinite(meta.dur)?meta.dur:MAX_VIDEO_SECS, MAX_VIDEO_SECS);
+  let bps = Math.max(350000, Math.min(2500000, Math.floor(TARGET_VIDEO_BYTES*8/dur) - 64000));
+  let maxDim = 720, res = await transcodeVideo(file, maxDim, bps);
+  if(res.blob.size > MAX_VIDEO_BYTES){            // encoder overshot — one tighter pass
+    res = await transcodeVideo(file, 540, Math.floor(bps*0.6));
+  }
+  return { blob:res.blob, trimmed: meta.dur > MAX_VIDEO_SECS+0.5 };
+}
+
+async function onVideo(inp){
   const f=inp.files[0]; if(!f) return;
-  const tmp=URL.createObjectURL(f);
-  const v=document.createElement("video"); v.src=tmp;
-  v.onloadedmetadata=()=>{
-    if(v.duration>31){ toast("Video must be 30 sec or less"); URL.revokeObjectURL(tmp); return; }
-    mediaState={type:"video",src:tmp,file:f}; renderMedia();
-  };
   inp.value="";
+  clearMedia();
+  document.getElementById("mempty").style.display="none";
+  document.getElementById("mview").classList.add("filled");
+  setVidBusy(true);
+  try{
+    const { blob, trimmed } = await optimizeVideo(f);
+    if(blob.size > MAX_VIDEO_BYTES) throw new Error("too big");
+    mediaState={type:"video",src:URL.createObjectURL(blob),blob:blob};
+    renderMedia();
+    if(trimmed) toast("Trimmed to the first "+MAX_VIDEO_SECS+" seconds");
+  }catch(err){
+    mediaState=null; renderMedia();
+    toast("Couldn't prepare that video — try a shorter clip or use Photo");
+  }finally{ setVidBusy(false); }
 }
 function handleUrl(val){
   if(!val) return;
@@ -724,7 +881,7 @@ async function startRec(){
     document.getElementById("mview").classList.add("filled");
     document.getElementById("recOv").style.display="flex";
     document.getElementById("mbar").style.display="block";
-    recChunks=[]; mediaRecorder=new MediaRecorder(stream, { videoBitsPerSecond: 700000 });
+    recChunks=[]; mediaRecorder=new MediaRecorder(stream, { videoBitsPerSecond: 900000, audioBitsPerSecond: 64000 }); // 15s ≈ 1.8MB
     mediaRecorder.ondataavailable=e=>{ if(e.data.size>0) recChunks.push(e.data); };
     mediaRecorder.onstop=()=>{
       const blob=new Blob(recChunks,{type:"video/webm"});
@@ -737,8 +894,8 @@ async function startRec(){
     mediaRecorder.start();
     const fill=document.getElementById("mbarFill");
     fill.style.transition="none"; fill.style.width="0%";
-    setTimeout(()=>{ fill.style.transition="width 30s linear"; fill.style.width="100%"; },50);
-    let s=30; document.getElementById("rtime").textContent="0:30";
+    setTimeout(()=>{ fill.style.transition="width "+MAX_VIDEO_SECS+"s linear"; fill.style.width="100%"; },50);
+    let s=MAX_VIDEO_SECS; document.getElementById("rtime").textContent="0:"+(s<10?"0"+s:s);
     recTick=setInterval(()=>{ s--; document.getElementById("rtime").textContent="0:"+(s<10?"0"+s:s); if(s<=0){ clearInterval(recTick); stopRec(); } },1000);
   }catch(e){ toast("Camera denied - use Gallery or paste a URL"); }
 }
@@ -794,6 +951,7 @@ function updateBtn(){
 }
 
 function mainSend(){
+  if(videoBusy){ toast("Still getting your video ready…"); return; }
   if(!sel){ toast("Select a scripture first"); document.getElementById("vsearch").scrollIntoView({behavior:"smooth"}); return; }
   if(delMode==="sms") sendSMS();
   else if(delMode==="social") copyMsg();
@@ -823,10 +981,10 @@ function getMediaPayload(){
       // so raw video needs to stay well under that. Recorded video is now capped
       // via bitrate above, but uploaded gallery videos can be 10-50MB+ with no
       // built-in limit — check before ever attempting to read/send it.
-      const MAX_VIDEO_BYTES = 4 * 1024 * 1024; // 4MB raw ≈ 5.3MB base64
+      // Videos are auto-compressed to fit (see optimizeVideo); this is just a safety net.
       const rawSize = mediaState.blob ? mediaState.blob.size : (mediaState.file ? mediaState.file.size : 0);
       if(rawSize > MAX_VIDEO_BYTES){
-        reject(new Error("This video is too large to send (max ~4MB / a few seconds). Try a shorter clip, lower quality, or use a photo instead."));
+        reject(new Error("This video is still too large to send. Try a shorter clip (15 sec max) or use a photo."));
         return;
       }
       if(mediaState.blob){
@@ -839,8 +997,7 @@ function getMediaPayload(){
         reader.onload=()=>resolve({ mediaType:"video", mediaData: reader.result });
         reader.onerror=()=>reject(new Error("Could not read video file"));
         reader.readAsDataURL(mediaState.file);
-      } else {
-        reject(new Error("Video URL links can't be saved as a gift yet — use Photo or upload a video file"));
+      } else {        reject(new Error("Video URL links can't be saved as a gift yet — use Photo or upload a video file"));
       }
     } else {
       reject(new Error("YouTube links can't be saved as a gift yet — use Photo or Video"));
@@ -848,6 +1005,10 @@ function getMediaPayload(){
   });
 }
 async function saveGiftAndGetId(fromName, toName, personalNote){
+  // Reuse the same gift (and link) when nothing changed, so a sender can email it,
+  // share it to several apps and copy the link without re-uploading each time.
+  const gkey = [sel&&sel.r, fromName, toName, personalNote].join("|");
+  if(mediaState && mediaState._gid && mediaState._gkey === gkey) return mediaState._gid;
   const media = await getMediaPayload();
   const res = await fetch("/.netlify/functions/save-gift", {
     method:"POST", headers:{"Content-Type":"application/json"},
@@ -864,7 +1025,29 @@ async function saveGiftAndGetId(fromName, toName, personalNote){
   try { data = await res.json(); } catch(_) {}
   if(!res.ok) throw new Error(data.error || "Could not save gift media (server error)");
   if(!data.giftId) throw new Error("Could not save gift media");
+  if(mediaState){ mediaState._gid = data.giftId; mediaState._gkey = gkey; }
   return data.giftId;
+}
+
+// One tap -> the phone's own share sheet (Instagram, TikTok, Snapchat, WhatsApp,
+// Messages, Facebook, X, Telegram... whatever the person has installed), so the
+// same gift can be sent to as many people/apps as they like.
+async function shareNative(){
+  if(videoBusy){ toast("Still getting your video ready…"); return; }
+  if(!sel){ toast("Select a verse first"); return; }
+  if(!mediaState){ toast("Add a photo or video first"); return; }
+  const fn=document.getElementById("fromName").value||document.getElementById("fromNameS").value||"A friend";
+  const tn=document.getElementById("toName").value||document.getElementById("toNameS").value||"You";
+  let link;
+  try{ link = CFG.site+"/g/"+await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value); }
+  catch(e){ toast("Could not save gift: "+e.message); return; }
+  const text = "A Word of Inspiration for "+tn+"\n\n\""+sel.t+"\"\n— "+sel.r;
+  if(navigator.share){
+    try{ await navigator.share({ title:"A Verse Gift from "+fn, text, url:link }); }
+    catch(e){ /* user closed the share sheet */ }
+  } else {
+    navigator.clipboard.writeText(text+"\n\n"+link).then(()=>toast("Link copied — paste it anywhere")).catch(()=>toast(link));
+  }
 }
 
 async function sendEmail(){
@@ -872,8 +1055,10 @@ async function sendEmail(){
   const te=document.getElementById("toEmail").value.trim();
   const fn=document.getElementById("fromName").value.trim()||"A friend";
   const tn=document.getElementById("toName").value.trim()||"You";
-  if(!fe||!te){ toast("Enter both email addresses"); return; }
-  if(!validEmail(fe)||!validEmail(te)){ toast("Check email format"); return; }
+  const recipients=[...new Set(te.split(/[,;\s]+/).map(s=>s.trim()).filter(Boolean))];
+  if(!fe||!recipients.length){ toast("Enter both email addresses"); return; }
+  if(recipients.length>10){ toast("Up to 10 people at a time"); return; }
+  if(!validEmail(fe)||!recipients.every(validEmail)){ toast("Check email format"); return; }
   const btn=document.getElementById("sendBtn");
   btn.innerHTML="<span class=\"spin\"></span>\u00a0Sending\u2026"; btn.disabled=true;
   try{
@@ -882,23 +1067,32 @@ async function sendEmail(){
       try{ giftId = await saveGiftAndGetId(fn, tn, document.getElementById("msgField").value); }
       catch(err){ toast("Gift not sent - "+err.message); updateBtn(); btn.disabled=false; return; }
     }
-    const res=await fetch("/.netlify/functions/send-gift",{
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        sender_name: fn,
-        recipient_name: tn,
-        recipient_contact: te,
-        personal_note: document.getElementById("msgField").value,
-        verse_text: sel.t,
-        verse_ref: sel.r,
-        gift_id: giftId
-      }),
-    });
-    if(res.ok){
+    // One gift, many recipients: same saved gift/link, one email each.
+    const results=await Promise.all(recipients.map(async addr=>{
+      try{
+        const r=await fetch("/.netlify/functions/send-gift",{
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({
+            sender_name: fn,
+            recipient_name: recipients.length>1 ? "Friend" : tn,
+            recipient_contact: addr,
+            personal_note: document.getElementById("msgField").value,
+            verse_text: sel.t,
+            verse_ref: sel.r,
+            gift_id: giftId
+          }),
+        });
+        if(r.ok) return {ok:true};
+        const e=await r.json().catch(()=>({})); return {ok:false,error:e.error};
+      }catch{ return {ok:false}; }
+    }));
+    const okCount=results.filter(r=>r.ok).length;
+    if(okCount){
+      if(okCount<recipients.length) toast(okCount+" of "+recipients.length+" sent — check the others");
       if(giftId) window.location.href = "/success.html?gift_id="+encodeURIComponent(giftId);
       else showSucc("email",te);
     }
-    else{ const e=await res.json().catch(()=>({})); toast(e.error||"Send failed - try again"); updateBtn(); btn.disabled=false; }
+    else{ toast((results[0]&&results[0].error)||"Send failed - try again"); updateBtn(); btn.disabled=false; }
   }catch{ toast("Network error - check connection"); updateBtn(); btn.disabled=false; }
 }
 
