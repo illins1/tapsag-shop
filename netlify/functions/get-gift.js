@@ -3,7 +3,7 @@
 // - success.html (sender's confirmation screen)
 // - index.html gift-view mode, at /g/:giftId (recipient's screen)
 
-const { getStore } = require('@netlify/blobs');
+const { withStore } = require('./_store');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') {
@@ -16,12 +16,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore({
-      name: 'tapsag-gifts',
-      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
-      token: process.env.NETLIFY_BLOBS_TOKEN
-    });
-    const record = await store.get(giftId, { type: 'json' });
+    const record = await withStore(event, (store) => store.get(giftId, { type: 'json' }));
     if (!record) {
       return { statusCode: 404, body: JSON.stringify({ error: 'Gift not found' }) };
     }
