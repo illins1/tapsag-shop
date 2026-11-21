@@ -148,6 +148,7 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .post-act{display:flex;align-items:center;gap:4px;padding:6px 8px;}
 .post-act button{min-width:44px;min-height:44px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;}
 .post-act button.on{color:#ff4d6d;}
+.post-report{font-size:12px;color:var(--t2);text-decoration:none;padding:0 10px;min-height:44px;display:flex;align-items:center;}
 .post-act .post-copy{margin-left:auto;font-size:13px;font-weight:700;color:var(--gl);}
 .post-cap{padding:0 14px 8px;}
 .post-verse{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;line-height:1.45;margin:0;}
@@ -277,6 +278,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
       <button aria-label="Reply" onclick="document.getElementById('gvMsg').focus()">&#x1F4AC;</button>
       <button aria-label="Share" onclick="shareGiftView()">&#x1F4E4;</button>
       <button class="post-copy" onclick="copyGiftLink(this)">Copy link</button>
+      <a class="post-report" id="gvReport" href="mailto:tapsag1940@gmail.com?subject=Report%20a%20Tapsag%20gift">Report</a>
     </div>
     <div class="post-cap">
       <p class="post-verse" id="gvVerse"></p>
@@ -630,6 +632,7 @@ function initGiftView(){
   if(!m) return false;
   const giftId = m[1];
   currentGiftId = giftId;
+  document.getElementById("gvReport").href = "mailto:tapsag1940@gmail.com?subject=" + encodeURIComponent("Report Tapsag gift " + giftId) + "&body=" + encodeURIComponent("Gift link: " + location.href.split("?")[0] + "\n\nWhat is wrong with it?");
   document.getElementById("mainApp").style.display = "none";
   document.getElementById("stickyBar").style.display = "none";
   const gv = document.getElementById("giftView");
@@ -971,6 +974,25 @@ function buildMsg(){
 // the gift (photo/video + verse + message) via /.netlify/functions/save-gift,
 // returning a gift_id used by both the email and SMS/Stripe delivery paths so
 // the recipient link (/g/:giftId) and the sender's success page both work.
+// Grab 3 small still frames from the video so the server can safety-check them.
+function grabVideoFrames(src){
+  return new Promise(resolve=>{
+    const v=document.createElement("video"); v.muted=true; v.playsInline=true; v.preload="auto"; v.src=src;
+    const out=[]; let i=0;
+    const fail=()=>resolve(out);
+    v.onerror=fail;
+    v.onloadedmetadata=()=>{
+      const d=isFinite(v.duration)&&v.duration>0?v.duration:1;
+      const pts=[0.15,0.5,0.85].map(p=>d*p);
+      const w=Math.min(512,v.videoWidth||512), h=Math.round(w*((v.videoHeight||512)/(v.videoWidth||512)));
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h; const cx=cv.getContext("2d");
+      v.onseeked=()=>{ try{ cx.drawImage(v,0,0,w,h); out.push(cv.toDataURL("image/jpeg",0.7)); }catch(_){}
+        i++; if(i<pts.length) v.currentTime=pts[i]; else resolve(out); };
+      v.currentTime=pts[0];
+    };
+    setTimeout(()=>resolve(out),8000);
+  });
+}
 function getMediaPayload(){
   return new Promise((resolve, reject)=>{
     if(!mediaState){ reject(new Error("no media")); return; }
@@ -989,12 +1011,12 @@ function getMediaPayload(){
       }
       if(mediaState.blob){
         const reader=new FileReader();
-        reader.onload=()=>resolve({ mediaType:"video", mediaData: reader.result });
+        reader.onload=async()=>resolve({ mediaType:"video", mediaData: reader.result, mediaFrames: await grabVideoFrames(mediaState.src) });
         reader.onerror=()=>reject(new Error("Could not read recorded video"));
         reader.readAsDataURL(mediaState.blob);
       } else if(mediaState.file){
         const reader=new FileReader();
-        reader.onload=()=>resolve({ mediaType:"video", mediaData: reader.result });
+        reader.onload=async()=>resolve({ mediaType:"video", mediaData: reader.result, mediaFrames: await grabVideoFrames(mediaState.src) });
         reader.onerror=()=>reject(new Error("Could not read video file"));
         reader.readAsDataURL(mediaState.file);
       } else {        reject(new Error("Video URL links can't be saved as a gift yet — use Photo or upload a video file"));

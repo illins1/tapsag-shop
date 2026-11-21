@@ -3,6 +3,7 @@
 // dependency (see package.json) and the site is deployed on Netlify.
 
 const { withStore } = require('./_store');
+const { moderate } = require('./_moderate');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -16,7 +17,7 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body' }) };
   }
 
-  const { mediaType, mediaData, verse_text, verse_ref, sender_name, recipient_name, personal_note } = payload;
+  const { mediaType, mediaData, mediaFrames, verse_text, verse_ref, sender_name, recipient_name, personal_note } = payload;
 
   if (!mediaType || !mediaData || !verse_text) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing mediaType, mediaData, or verse_text' }) };
@@ -26,6 +27,15 @@ exports.handler = async (event) => {
   // Netlify Blobs supports large values, but keep a sane ceiling (~18MB base64).
   if (mediaData.length > 18_000_000) {
     return { statusCode: 413, body: JSON.stringify({ error: 'Media file too large. Try a shorter video or a photo instead.' }) };
+  }
+
+  // Content safety: note + names as text, photo itself or 3 video stills as images.
+  const images = mediaType === 'video'
+    ? (Array.isArray(mediaFrames) ? mediaFrames.filter(f => typeof f === 'string' && f.startsWith('data:image/')).slice(0, 3) : [])
+    : (typeof mediaData === 'string' && mediaData.startsWith('data:image/') ? [mediaData] : []);
+  const check = await moderate({ texts: [personal_note, sender_name, recipient_name], images });
+  if (!check.ok) {
+    return { statusCode: 422, body: JSON.stringify({ error: check.reason }) };
   }
 
   const giftId = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);

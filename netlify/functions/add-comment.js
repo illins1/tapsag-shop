@@ -5,6 +5,7 @@
 // that save-gift.js/get-gift.js already use.
 
 const { withStore } = require('./_store');
+const { moderate } = require('./_moderate');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -27,6 +28,11 @@ exports.handler = async (event) => {
   }
   if (message.length > 300) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Message too long (300 characters max)' }) };
+  }
+
+  const check = await moderate({ texts: [message, name] });
+  if (!check.ok) {
+    return { statusCode: 422, body: JSON.stringify({ error: check.reason }) };
   }
 
   try {
