@@ -2,7 +2,7 @@
 // Netlify site itself and works automatically once @netlify/blobs is a
 // dependency (see package.json) and the site is deployed on Netlify.
 
-const { getStore } = require('@netlify/blobs');
+const { withStore } = require('./_store');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -44,16 +44,10 @@ exports.handler = async (event) => {
   };
 
   try {
-    const store = getStore({
-      name: 'tapsag-gifts',
-      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
-      token: process.env.NETLIFY_BLOBS_TOKEN
-    });
-
-    await store.setJSON(giftId, record);
+    await withStore(event, (store) => store.setJSON(giftId, record));
     return { statusCode: 200, body: JSON.stringify({ giftId }) };
   } catch (err) {
-    console.error('save-gift error:', err);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Could not save gift media (server error)' }) };
+    console.error('save-gift error:', err && err.message, err && err.blobErrors);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Could not save gift media: ' + String((err && err.message) || 'server error').slice(0, 160) }) };
   }
 };
