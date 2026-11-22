@@ -159,6 +159,16 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .post-reply input{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:0 14px;min-height:44px;color:#fff;font-size:15px;}
 .post-reply-row{display:flex;gap:8px;margin-top:8px;}
 .post-reply-row button{min-width:64px;min-height:44px;border:none;border-radius:22px;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;font-weight:700;font-size:14px;}
+
+#rev{position:fixed;inset:0;z-index:9000;background:var(--bg);overflow-y:auto;display:none;padding:16px 16px 48px;-webkit-overflow-scrolling:touch;}
+#rev.on{display:block;}
+.rev-in{max-width:480px;margin:0 auto;}
+.rev-h{font-family:'Cormorant Garamond',serif;font-size:28px;text-align:center;margin:6px 0 2px;}
+.rev-sub{text-align:center;color:var(--t2);font-size:14px;margin:0 0 14px;}
+.rev-to{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;margin:0 0 14px;}
+.rev-btn{width:100%;min-height:54px;border-radius:12px;font-weight:700;font-size:16px;margin-bottom:10px;cursor:pointer;font-family:inherit;}
+.rev-go{border:none;background:linear-gradient(135deg,var(--gd),var(--gl));color:#08070F;}
+.rev-alt{background:transparent;border:1px solid var(--line);color:#fff;}
 .vcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px;}
 .srch{position:relative;margin-bottom:9px;}
 .srch input{width:100%;height:var(--h);padding:0 13px 0 40px;background:var(--inp);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-size:15px;outline:none;transition:border .2s;}
@@ -512,6 +522,30 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
   </div>
 </div>
 
+<div id="rev" role="dialog" aria-modal="true" aria-label="Review your gift">
+  <div class="rev-in">
+    <h2 class="rev-h">Review your gift</h2>
+    <p class="rev-sub">This is exactly what they will see. Nothing is sent yet.</p>
+    <article class="post" style="margin-bottom:12px;">
+      <header class="post-h">
+        <div class="post-av" id="revAv">T</div>
+        <div class="post-who"><b id="revFrom"></b><span id="revFor"></span></div>
+        <span class="post-tag">Tapsag</span>
+      </header>
+      <div class="post-media" id="revMedia"></div>
+      <div class="post-cap">
+        <p class="post-verse" id="revVerse"></p>
+        <p class="post-ref" id="revRef"></p>
+        <p class="post-note" id="revNoteWrap" style="display:none;"><b id="revNoteBy"></b> <span id="revNote"></span></p>
+      </div>
+    </article>
+    <div class="rev-to" id="revTo"></div>
+    <button class="rev-btn rev-go" id="revGo" onclick="confirmReview()"></button>
+    <button class="rev-btn rev-alt" onclick="reviewChangeMedia()">&#x1F4F7; Change photo or video</button>
+    <button class="rev-btn rev-alt" onclick="reviewEditNote()">&#x270F;&#xFE0F; Edit message</button>
+    <button class="rev-btn rev-alt" onclick="closeReview()">&larr; Back</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -953,12 +987,77 @@ function updateBtn(){
   else{ btn.textContent="Send Verse Gift Free"; btn.classList.remove("stripe-mode"); }
 }
 
+
+// ---------- Review before send: show exactly what the recipient will get, let the
+// sender change the photo/video or note, and only send/charge after they confirm.
+let reviewMode=null;
+function openReview(mode){
+  const sms = mode==="sms";
+  const fn=(document.getElementById(sms?"fromNameS":"fromName").value.trim())||"A friend";
+  const tn=(document.getElementById(sms?"toNameS":"toName").value.trim())||"You";
+  let toLine;
+  if(sms){
+    const ph=document.getElementById("toPhone").value.trim();
+    if(!ph){ toast("Enter recipient phone number"); return; }
+    if(!mediaState){ toast("Add a photo or video first"); return; }
+    toLine="<b>Text to:</b> "+esc(ph)+"<br>You'll pay <b>$1.99</b> on the next screen, then we text them the gift link.";
+  } else {
+    const fe=document.getElementById("fromEmail").value.trim();
+    const te=document.getElementById("toEmail").value.trim();
+    const recips=[...new Set(te.split(/[,;\s]+/).map(s=>s.trim()).filter(Boolean))];
+    if(!fe||!recips.length){ toast("Enter both email addresses"); return; }
+    if(recips.length>10){ toast("Up to 10 people at a time"); return; }
+    if(!validEmail(fe)||!recips.every(validEmail)){ toast("Check email format"); return; }
+    toLine="<b>Email to:</b> "+recips.map(esc).join(", ")+"<br>From: "+esc(fe)+" &middot; Free";
+  }
+  reviewMode=mode;
+  document.getElementById("revAv").textContent=(fn[0]||"T").toUpperCase();
+  document.getElementById("revFrom").textContent=fn;
+  document.getElementById("revFor").textContent="sent this verse for "+tn;
+  document.getElementById("revVerse").textContent="\u201C"+sel.t+"\u201D";
+  document.getElementById("revRef").textContent="\u2014 "+sel.r;
+  const note=document.getElementById("msgField").value.trim();
+  document.getElementById("revNoteWrap").style.display=note?"block":"none";
+  document.getElementById("revNoteBy").textContent=fn;
+  document.getElementById("revNote").textContent=note;
+  const m=document.getElementById("revMedia"); m.innerHTML="";
+  if(mediaState && mediaState.type==="video" && mediaState.src){
+    const v=document.createElement("video"); v.src=mediaState.src; v.controls=true; v.playsInline=true; v.muted=true; v.loop=true; v.autoplay=true; v.style.cssText="width:100%;display:block;max-height:50vh;object-fit:contain;background:#000;";
+    m.appendChild(v);
+  } else if(mediaState && mediaState.type==="photo" && mediaState.src){
+    const im=document.createElement("img"); im.src=mediaState.src; im.style.cssText="width:100%;display:block;max-height:50vh;object-fit:contain;background:#000;"; m.appendChild(im);
+  } else { m.style.display="none"; }
+  if(m.children.length) m.style.display="block";
+  document.getElementById("revTo").innerHTML=toLine;
+  document.getElementById("revGo").textContent = sms ? "Looks good \u2014 Pay $1.99 & Send" : "Looks good \u2014 Send it";
+  document.getElementById("rev").classList.add("on");
+  document.getElementById("rev").scrollTop=0;
+  document.body.style.overflow="hidden";
+}
+function closeReview(){
+  document.getElementById("rev").classList.remove("on");
+  const m=document.getElementById("revMedia"); const v=m.querySelector("video"); if(v){ try{v.pause();}catch(_){} }
+  m.innerHTML=""; document.body.style.overflow="";
+}
+function confirmReview(){ const mode=reviewMode; closeReview(); if(mode==="sms") sendSMS(); else sendEmail(); }
+function reviewChangeMedia(){
+  closeReview();
+  document.getElementById("mview").scrollIntoView({behavior:"smooth",block:"center"});
+  toast("Pick a new photo or video, then tap Send again");
+}
+function reviewEditNote(){
+  closeReview();
+  const f=document.getElementById("msgField"); f.scrollIntoView({behavior:"smooth",block:"center"});
+  setTimeout(()=>f.focus(),450);
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
 function mainSend(){
   if(videoBusy){ toast("Still getting your video ready…"); return; }
   if(!sel){ toast("Select a scripture first"); document.getElementById("vsearch").scrollIntoView({behavior:"smooth"}); return; }
-  if(delMode==="sms") sendSMS();
+  if(delMode==="sms") openReview("sms");
   else if(delMode==="social") copyMsg();
-  else sendEmail();
+  else openReview("email");
 }
 function buildMsg(){
   const fn=document.getElementById("fromName").value||document.getElementById("fromNameS").value||"Someone special";
