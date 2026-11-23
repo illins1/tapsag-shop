@@ -76,6 +76,8 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .mcap:active{background:rgba(201,168,76,.2);transform:scale(.95);}
 .mcap-ic{font-size:28px;}
 .mcap-lbl{font-size:13px;font-weight:600;}
+.mcap-sub{display:block;font-size:10px;color:var(--t3);margin-top:2px;}
+.mlimit{font-size:11px;color:#E4C76B;text-align:center;pointer-events:none;}
 .mupload-link{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline;text-underline-offset:2px;pointer-events:all;}
 
 .mview img,.mview video{width:100%;max-height:270px;object-fit:cover;display:block;position:relative;z-index:1;}
@@ -349,9 +351,11 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
           <label class="mcap" id="videoLabel" for="inVideoCamera" onclick="handleVideoTap(event)">
             <span class="mcap-ic">&#x1F3AC;</span>
             <span class="mcap-lbl">Video</span>
+            <span class="mcap-sub">20 sec max</span>
           </label>
         </div>
         <span class="mupload-link" onclick="document.getElementById('inPhotoGallery').click()">Or upload from your device</span>
+        <span class="mlimit">&#x23F1; Videos are limited to 20 seconds</span>
       </div>
 
       <img id="outPhoto" src="" alt="" style="display:none;">
@@ -363,7 +367,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
 
       <div class="rec-ov" id="recOv">
         <div class="rdot"></div>
-        <div class="rtime" id="rtime">0:15</div>
+        <div class="rtime" id="rtime">0:20</div>
         <div class="rlbl">Recording</div>
         <button class="rstop" onclick="stopRec()">Stop &amp; Use</button>
       </div>
@@ -754,8 +758,8 @@ function onPhoto(inp){
 // ---------- Video limits. Netlify functions cap request/response bodies at ~6MB and
 // base64 adds ~33%, so the FINAL video must stay under ~3.2MB. Phone videos are
 // 20MB+ (1080p, ~20Mbps), so every uploaded video is re-encoded in the browser:
-// scaled to 720p, trimmed to 15s, bitrate chosen from the length so it always fits.
-const MAX_VIDEO_SECS = 15;
+// scaled to 720p, trimmed to 20s, bitrate chosen from the length so it always fits.
+const MAX_VIDEO_SECS = 20;
 const TARGET_VIDEO_BYTES = 2.6 * 1024 * 1024;  // what we aim for
 const MAX_VIDEO_BYTES = 3.2 * 1024 * 1024;     // hard ceiling (~4.3MB base64)
 let videoBusy = false;
@@ -839,7 +843,7 @@ function transcodeVideo(file, maxDim, videoBps){
 }
 
 async function optimizeVideo(file){
-  // Small enough already? Keep the original, but still enforce the 15s cap.
+  // Small enough already? Keep the original, but still enforce the 20s cap.
   const meta = await new Promise((res)=>{
     const u=URL.createObjectURL(file), t=document.createElement("video");
     t.preload="metadata"; t.src=u;
@@ -868,7 +872,7 @@ async function onVideo(inp){
     if(blob.size > MAX_VIDEO_BYTES) throw new Error("too big");
     mediaState={type:"video",src:URL.createObjectURL(blob),blob:blob};
     renderMedia();
-    if(trimmed) toast("Trimmed to the first "+MAX_VIDEO_SECS+" seconds");
+    if(trimmed) toast("Videos are limited to "+MAX_VIDEO_SECS+" seconds — we kept the first "+MAX_VIDEO_SECS);
   }catch(err){
     mediaState=null; renderMedia();
     toast("Couldn't prepare that video — try a shorter clip or use Photo");
@@ -918,7 +922,7 @@ async function startRec(){
     document.getElementById("mview").classList.add("filled");
     document.getElementById("recOv").style.display="flex";
     document.getElementById("mbar").style.display="block";
-    recChunks=[]; mediaRecorder=new MediaRecorder(stream, { videoBitsPerSecond: 900000, audioBitsPerSecond: 64000 }); // 15s ≈ 1.8MB
+    recChunks=[]; mediaRecorder=new MediaRecorder(stream, { videoBitsPerSecond: 900000, audioBitsPerSecond: 64000 }); // 20s ≈ 2.4MB
     mediaRecorder.ondataavailable=e=>{ if(e.data.size>0) recChunks.push(e.data); };
     mediaRecorder.onstop=()=>{
       const blob=new Blob(recChunks,{type:"video/webm"});
@@ -1105,7 +1109,7 @@ function getMediaPayload(){
       // Videos are auto-compressed to fit (see optimizeVideo); this is just a safety net.
       const rawSize = mediaState.blob ? mediaState.blob.size : (mediaState.file ? mediaState.file.size : 0);
       if(rawSize > MAX_VIDEO_BYTES){
-        reject(new Error("This video is still too large to send. Try a shorter clip (15 sec max) or use a photo."));
+        reject(new Error("This video is still too large to send. Try a shorter clip (20 sec max) or use a photo."));
         return;
       }
       if(mediaState.blob){
