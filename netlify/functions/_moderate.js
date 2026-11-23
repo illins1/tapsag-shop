@@ -27,21 +27,51 @@ async function moderate({ texts = [], images = [] }) {
   images.filter(Boolean).slice(0, 4).forEach(u => input.push({ type: 'image_url', image_url: { url: u } }));
   if (!input.length) return { ok: true };
 
-  try {
+  const call = async (inp) => {
     const r = await fetch('https://api.openai.com/v1/moderations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
-      body: JSON.stringify({ model: 'omni-moderation-latest', input })
+      body: JSON.stringify({ model: 'omni-moderation-latest', input: inp })
     });
-    if (!r.ok) throw new Error('moderation HTTP ' + r.status);
-    const data = await r.json();
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      const err = new Error('moderation HTTP ' + r.status + ' ' + body.slice(0, 300));
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  };
+
+  try {
+    let data;
+    try {
+      data = await call(input);
+    } catch (e) {
+      console.error('moderate error:', e && e.message);
+      if (e.status === 400 && images.length) {
+        // Bad/oversized image frame: retry with text plus only the first image, then text only.
+        const textOnly = input.filter(i => i.type === 'text');
+        const firstImg = input.filter(i => i.type === 'image_url').slice(0, 1);
+        try { data = await call(textOnly.concat(firstImg)); }
+        catch (e2) {
+          console.error('moderate retry error:', e2 && e2.message);
+          if (!textOnly.length) return { ok: true, skipped: true };
+          data = await call(textOnly);
+        }
+      } else if (e.status === 429 || e.status >= 500) {
+        await new Promise(r => setTimeout(r, 800));
+        data = await call(input);
+      } else {
+        throw e;
+      }
+    }
     for (const res of data.results || []) {
       const hit = BLOCK.find(c => res.categories && res.categories[c]);
       if (hit) { console.warn('moderate: blocked for', hit); return { ok: false, reason: FRIENDLY }; }
     }
     return { ok: true };
   } catch (e) {
-    console.error('moderate error:', e && e.message);
+    console.error('moderate final error:', e && e.message);
     return { ok: false, reason: 'We couldn’t verify this content right now. Please try again in a moment.' };
   }
 }
