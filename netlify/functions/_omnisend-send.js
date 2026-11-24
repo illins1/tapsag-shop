@@ -106,7 +106,8 @@ async function sendVerseGift({ sender_name, recipient_name, recipient_contact, p
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      from: 'Tapsag <onboarding@resend.dev>',
+      // Set RESEND_FROM in Netlify (e.g. "Tapsag <gifts@tapsag.shop>") once the domain shows Verified in Resend.
+      from: process.env.RESEND_FROM || 'Tapsag <onboarding@resend.dev>',
       to: [recipient_contact],
       subject: `${sender_name} sent you a verse gift`,
       html: buildEmailHtml({ sender_name, recipient_name, verse_text, verse_ref, personal_note, returnLink })
