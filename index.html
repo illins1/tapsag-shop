@@ -39,6 +39,7 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .hero-feat.show{opacity:.5;}
 .hero-feat-btn{display:none;position:absolute;top:6px;right:0;font-size:11px;font-weight:700;color:var(--gl);border:1px solid var(--line);background:rgba(33,31,58,.85);padding:0 12px;min-height:44px;border-radius:22px;cursor:pointer;z-index:2;}
 .owner .hero-feat-btn{display:block;}
+.hero-feat-reset{right:auto;left:0;}
 .hero-content{position:relative;z-index:2;}
 .eye{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--gold);margin-bottom:7px;}
 .hero h1{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1.22;margin-bottom:6px;}
@@ -318,6 +319,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
   <div class="hero">
     <div class="hero-feat" id="heroFeat"></div>
     <button class="hero-feat-btn" onclick="document.getElementById('inFeatured').click()">Change Background</button>
+    <button class="hero-feat-btn hero-feat-reset" onclick="resetBg()">Reset</button>
     <div class="hero-content">
       <div class="eye">&#x271D; Spread the Word</div>
       <h1>Share a <em>Verse</em> of Inspiration<br>with loved ones</h1>
@@ -715,21 +717,61 @@ document.addEventListener("DOMContentLoaded", () => {
   renderV(V);
 });
 
-// Owner-only background: the Change Background button stays hidden for visitors.
-// Unlock once per device by opening the site with ?owner=<OWNER_KEY>.
-const OWNER_KEY="tapsag-owner-1124";
+// ---------- Background (server-saved, per church/business) ----------
+// Everyone sees the saved background. Only the owner can change it: the real lock
+// is OWNER_KEY on the server; the browser just remembers the key after one unlock
+// visit (?owner=KEY). Pages: tapsag.shop (default) or tapsag.shop/c/<name>.
+const THEME_SLUG=(function(){
+  const m=location.pathname.match(/^\/c\/([a-z0-9-]{1,40})\/?$/i);
+  return m?m[1].toLowerCase():"default";
+})();
+function ownerKey(){ try{return localStorage.getItem("tapsagOwnerKey")||"";}catch(_){return "";} }
 try{
   const q=new URLSearchParams(location.search).get("owner");
-  if(q===OWNER_KEY) localStorage.setItem("tapsagOwner",OWNER_KEY);
-  if(localStorage.getItem("tapsagOwner")===OWNER_KEY) document.documentElement.classList.add("owner");
+  if(q){ localStorage.setItem("tapsagOwnerKey",q); history.replaceState(null,"",location.pathname); }
 }catch(_){}
-function isOwner(){ return document.documentElement.classList.contains("owner"); }
-function setFeat(inp){
-  if(!isOwner()){ inp.value=""; return; }
-  const f=inp.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=e=>{ const el=document.getElementById("heroFeat"); el.style.backgroundImage="url("+e.target.result+")"; el.classList.add("show"); };
-  r.readAsDataURL(f); inp.value="";
+if(ownerKey()) document.documentElement.classList.add("owner");
+function applyBg(src){
+  const el=document.getElementById("heroFeat"); if(!el) return;
+  if(src){ el.style.backgroundImage="url("+src+")"; el.classList.add("show"); }
+  else { el.style.backgroundImage=""; el.classList.remove("show"); }
+}
+fetch("/.netlify/functions/get-theme?slug="+THEME_SLUG).then(r=>r.json()).then(t=>{ if(t&&t.bg) applyBg(t.bg); }).catch(()=>{});
+function shrinkImage(file){
+  return new Promise((res,rej)=>{
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let w=Math.min(1400,img.width), q=.82, out;
+      for(let i=0;i<6;i++){
+        const c=document.createElement("canvas"); c.width=w; c.height=Math.round(img.height*w/img.width);
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+        out=c.toDataURL("image/jpeg",q);
+        if(out.length<850000) break;
+        w=Math.round(w*.8); q=Math.max(.6,q-.06);
+      }
+      URL.revokeObjectURL(url); out.length<900000?res(out):rej(new Error("too big"));
+    };
+    img.onerror=()=>rej(new Error("bad image")); img.src=url;
+  });
+}
+async function saveTheme(payload){
+  const r=await fetch("/.netlify/functions/set-theme",{method:"POST",headers:{"Content-Type":"application/json","x-owner-key":ownerKey()},body:JSON.stringify(Object.assign({slug:THEME_SLUG},payload))});
+  if(r.status===401){ try{localStorage.removeItem("tapsagOwnerKey");}catch(_){} document.documentElement.classList.remove("owner"); throw new Error("Not allowed"); }
+  if(!r.ok) throw new Error("Could not save");
+}
+async function setFeat(inp){
+  const f=inp.files[0]; inp.value="";
+  if(!f||!ownerKey()) return;
+  try{
+    toast("Saving background…");
+    const bg=await shrinkImage(f);
+    await saveTheme({bg});
+    applyBg(bg); toast("Background saved for everyone");
+  }catch(e){ toast(e.message||"Could not save"); }
+}
+async function resetBg(){
+  try{ await saveTheme({clear:true}); applyBg(null); toast("Background reset"); }
+  catch(e){ toast(e.message||"Could not reset"); }
 }
 
 function isMobile(){ return /Android|iPhone|iPad/i.test(navigator.userAgent); }
