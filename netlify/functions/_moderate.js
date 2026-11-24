@@ -17,7 +17,32 @@ const BLOCK = [
 
 const FRIENDLY = 'This content isn’t allowed on Tapsag. Please share something uplifting and appropriate.';
 
+
+// Strong-profanity check (OpenAI's moderation doesn't flag plain cussing).
+// Catches "f u c k", "f*ck", "fuuuck" without flagging innocent words (Scunthorpe, shiitake, class).
+// Mild words (damn, hell, crap) are intentionally allowed.
+const STRONG = ['fuck', 'fck', 'shit', 'bitch', 'cunt', 'asshole', 'dick', 'cock', 'pussy', 'whore', 'slut', 'bastard', 'nigg', 'fagg', 'retard'];
+const SAFE = ['scunthorpe', 'shitake', 'shiitake', 'cockpit', 'cocktail', 'cockatoo', 'peacock', 'hancock', 'dickens', 'dickinson', 'dickson', 'cockburn', 'babcock', 'woodcock', 'hitchcock', 'bastion'];
+const LEET = { '@': 'a', '4': 'a', '3': 'e', '1': 'i', '!': 'i', '0': 'o', '$': 's', '5': 's', '7': 't', '*': 'u', '#': 'u' };
+const squash = w => w.replace(/(.)\1+/g, '$1');
+const STRONG_SQ = STRONG.map(squash);
+const SAFE_SQ = SAFE.map(squash);
+
+function hasStrongProfanity(texts) {
+  const raw = texts.filter(Boolean).join(' ').toLowerCase();
+  // Join runs of single letters separated by spaces/dots/dashes ("f u c k", "f.u.c.k") into one token.
+  const joined = raw.replace(/\b(?:[a-z@$*#0-9][\s._-]+){2,}[a-z@$*#0-9]\b/g, m => m.replace(/[\s._-]+/g, ''));
+  const tokens = joined.split(/[^a-z0-9@$*#!]+/).filter(Boolean);
+  for (const t of tokens) {
+    const w = squash(t.replace(/[@43!10$57*#]/g, c => LEET[c]).replace(/[^a-z]/g, ''));
+    if (!w || SAFE_SQ.some(x => w.includes(x))) continue;
+    if (STRONG_SQ.some(x => w.includes(x))) return true;
+  }
+  return false;
+}
+
 async function moderate({ texts = [], images = [] }) {
+  if (hasStrongProfanity(texts)) { console.warn('moderate: blocked for profanity'); return { ok: false, reason: FRIENDLY }; }
   const key = process.env.OPENAI_API_KEY;
   if (!key) { console.warn('moderate: OPENAI_API_KEY not set — skipping content check'); return { ok: true, skipped: true }; }
 
