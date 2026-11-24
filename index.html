@@ -51,6 +51,8 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .dtab-sub{font-size:9px;font-weight:600;display:block;margin-top:1px;}
 .sub-free{color:var(--grn);}
 .sub-pay{color:#7B77FF;}
+.dtab-soon,.dtab-soon:disabled{opacity:.5;cursor:not-allowed;pointer-events:none;}
+.sub-soon{color:var(--gold);text-transform:uppercase;letter-spacing:.8px;}
 
 .gbox{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
 
@@ -325,9 +327,9 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
           <span class="dtab-lbl">&#x2709;&#xFE0F; Email</span>
           <span class="dtab-sub sub-free">Totally Free</span>
         </button>
-        <button class="dtab" onclick="setDel(this,'sms')" id="tab-sms">
+        <button class="dtab dtab-soon" id="tab-sms" type="button" disabled aria-disabled="true" tabindex="-1">
           <span class="dtab-lbl">&#x1F4AC; SMS Text</span>
-          <span class="dtab-sub sub-pay">$1.99 / send</span>
+          <span class="dtab-sub sub-soon">Coming Soon</span>
         </button>
         <button class="dtab" onclick="setDel(this,'social')" id="tab-social">
           <span class="dtab-lbl">&#x1F517; Social DM</span>
@@ -511,7 +513,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
       <h2>Terms of Use</h2>
       <p><strong>Effective:</strong> June 2026</p>
       <p>Tapsag is a faith-based verse gifting platform. By using this service you agree to use it for encouragement and inspiration only. You may not use Tapsag to send spam, harmful content, or unsolicited messages.</p>
-      <p>Email delivery is free. SMS delivery costs $1.99 per message, charged via Stripe. All payments are final.</p>
+      <p>Email delivery is free. Text (SMS) delivery is coming soon.</p>
       <p>Tapsag is provided as-is. We reserve the right to update these terms at any time.</p>
       <p>Contact: <a href="mailto:tapsag1940@gmail.com">tapsag1940@gmail.com</a></p>
     </div>
@@ -977,6 +979,7 @@ function pickV(i,el){
 }
 
 function setDel(el,mode){
+  if(mode==="sms"){ toast("Text delivery is coming soon"); return; } // SMS locked until Twilio is live
   delMode=mode;
   document.querySelectorAll(".dtab").forEach(b=>b.classList.remove("on")); el.classList.add("on");
   document.querySelectorAll(".del-panel").forEach(p=>p.classList.remove("on"));
@@ -996,6 +999,7 @@ function updateBtn(){
 // sender change the photo/video or note, and only send/charge after they confirm.
 let reviewMode=null;
 function openReview(mode){
+  if(mode==="sms"){ toast("Text delivery is coming soon"); return; }
   const sms = mode==="sms";
   const fn=(document.getElementById(sms?"fromNameS":"fromName").value.trim())||"A friend";
   const tn=(document.getElementById(sms?"toNameS":"toName").value.trim())||"You";
@@ -1222,6 +1226,7 @@ async function sendEmail(){
 }
 
 async function sendSMS(){
+  toast("Text delivery is coming soon"); return; // locked until Twilio is live
   const ph=document.getElementById("toPhone").value.trim();
   const fn=document.getElementById("fromNameS").value.trim()||"A friend";
   const tn=document.getElementById("toNameS").value.trim()||"You";
