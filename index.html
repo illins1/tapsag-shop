@@ -28,7 +28,9 @@ body::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%)
 .logo{display:flex;align-items:center;gap:9px;}
 .lm{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#8A6E2A,#E4C76B);display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;color:#08070F;flex-shrink:0;}
 .ln{font-family:"Cormorant Garamond",serif;font-size:19px;font-weight:700;}
-.ls{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--t2);}
+.ls{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--t2);white-space:nowrap;}
+.ls b,.acro b{color:var(--gl);font-weight:800;}
+.acro{font-family:"Cormorant Garamond",serif;font-size:17px;font-weight:600;font-style:italic;color:var(--txt);margin:0 0 10px;letter-spacing:.3px;}
 .donate-btn{display:flex;align-items:center;gap:5px;background:#00C846;color:#000;padding:7px 13px;border-radius:22px;font-size:12px;font-weight:800;flex-shrink:0;border:none;cursor:pointer;text-decoration:none;}
 .donate-btn svg{width:11px;height:11px;fill:#000;flex-shrink:0;}
 
@@ -266,7 +268,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
     <div class="lm">T</div>
     <div>
       <div class="ln">Tapsag</div>
-      <div class="ls">Share Inspiration</div>
+      <div class="ls"><b>T</b>ake <b>A</b> <b>P</b>icture <b>S</b>end <b>A</b> <b>G</b>ift</div>
     </div>
   </div>
   <a href="https://cash.app/$tapsag1" target="_blank" rel="noopener" class="donate-btn" title="Support Tapsag - donate via CashApp">
@@ -323,6 +325,7 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); d
     <div class="hero-content">
       <div class="eye">&#x271D; Spread the Word</div>
       <h1>Share a <em>Verse</em> of Inspiration<br>with loved ones</h1>
+      <p class="acro">Tapsag = <b>T</b>ake <b>A</b> <b>P</b>icture, <b>S</b>end <b>A</b> <b>G</b>ift</p>
       <p class="hero-sub">Select a Bible verse, add your photo or video, write a message, and send it straight to their heart.</p>
 
       <div class="del-tabs">
